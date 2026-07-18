@@ -7,11 +7,12 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    # LLM Configuration
+    # LLM Configuration — OpenRouter (primary) or OpenAI (fallback)
+    openrouter_api_key: str = ""
     openai_api_key: str = ""
     anthropic_api_key: str = ""
-    default_llm_model: str = "gpt-4o"
-    fast_llm_model: str = "gpt-4o-mini"
+    default_llm_model: str = "openai/gpt-4o"
+    fast_llm_model: str = "openai/gpt-4o-mini"
 
     # Web Search
     tavily_api_key: str = ""
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
-        "extra": "ignore",  # Ignore any extra env vars in .env
+        "extra": "ignore",
     }
 
 

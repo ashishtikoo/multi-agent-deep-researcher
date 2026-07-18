@@ -32,9 +32,20 @@ with st.sidebar:
 
     llm_model = st.selectbox(
         "LLM Model",
-        ["gpt-4o", "gpt-4o-mini", "claude-3.5-sonnet"],
+        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "google/gemini-2.0-flash"],
         index=0,
-        help="The LLM to use for agent reasoning",
+        help="Models available via OpenRouter (cheaper than direct API access)",
+    )
+
+    st.markdown("---")
+    st.markdown("### Setup")
+    st.info(
+        "🔑 **API Key Required**\n\n"
+        "Copy `.env.example` to `.env` and add your **OpenRouter** API key:\n\n"
+        "```bash\n"
+        "cp .env.example .env\n"
+        "```\n\n"
+        "Get a free key: [openrouter.ai/keys](https://openrouter.ai/keys)"
     )
 
     st.markdown("---")
@@ -251,13 +262,13 @@ if run_button and query.strip():
             error_msg = str(e)
             st.error(f"❌ Research failed: {error_msg}")
 
-            if "api_key" in error_msg.lower() or "openai" in error_msg.lower():
+            if "api_key" in error_msg.lower() or "invalid_api_key" in error_msg.lower():
                 st.error(
-                    "🔑 **API Key Not Configured**\n\n"
-                    "1. Copy `.env.example` to `.env` in the project folder\n"
-                    "2. Add your OpenAI API key to `.env`:\n\n"
+                    "🔑 **API Key Issue**\n\n"
+                    "1. Make sure your `.env` file exists (run: `cp .env.example .env`)\n"
+                    "2. Add your **OpenRouter** API key to `.env`:\n\n"
                     "```env\n"
-                    "OPENAI_API_KEY=sk-proj-your-key-here\n"
+                    "OPENROUTER_API_KEY=sk-or-v1-your-key-here\n"
                     "```\n\n"
                     "3. Restart the Streamlit app"
                 )
