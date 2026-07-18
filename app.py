@@ -91,6 +91,30 @@ st.markdown("""
     border-color: rgba(100, 200, 255, 0.3) !important;
 }
 
+/* ─── Sidebar Title Fix ─── */
+[data-testid="stSidebar"] .stMarkdown h1 {
+    color: #ffffff !important;
+    font-size: 1.5rem !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1 > span {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1 > img,
+[data-testid="stSidebar"] .stMarkdown h1 > svg {
+    filter: brightness(0) invert(1);
+}
+
+/* ─── Sidebar Title (st.title) ─── */
+[data-testid="stSidebar"] .stTitle {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stTitle > span {
+    color: #ffffff !important;
+}
+
 [data-testid="stSidebar"] .stSelectbox > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div > div {
