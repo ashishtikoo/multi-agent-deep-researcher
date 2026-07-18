@@ -502,16 +502,6 @@ with st.sidebar:
     st.title("🔬 Deep Researcher")
     st.markdown("---")
 
-    st.markdown("### Configuration")
-
-    llm_model = st.selectbox(
-        "LLM Model",
-        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.1-sonnet", "google/gemini-2.0-flash"],
-        index=0,
-        help="Models available via OpenRouter (cheaper than direct API access)",
-    )
-
-    st.markdown("---")
     st.markdown("### About")
     st.markdown("""
     **Multi-Agent AI Deep Researcher**
@@ -523,12 +513,6 @@ with st.sidebar:
     - 📝 **Compile** structured reports
 
     Built with LangChain & Streamlit
-    """)
-
-    st.markdown("---")
-    st.markdown("### LLM Model")
-    st.markdown("""
-    ⚠️ Model selection is now in the main input area above.
     """)
 
 
@@ -796,33 +780,152 @@ window.addEventListener('load', function() {
 """, height=0)
 
 # ─── Input Section ─────────────────────────────────────────────
-# Model selector and research input in one row
-model_col, query_col = st.columns([1, 4])
+# Custom input with integrated model selector using HTML/CSS
+st.markdown("""
+<style>
+/* Custom input container */
+.custom-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(100, 200, 255, 0.4);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
 
-with model_col:
-    llm_model = st.selectbox(
-        "Model",
-        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.1-sonnet", "google/gemini-2.0-flash"],
-        index=0,
-        help="Select the AI model for research",
-        label_visibility="collapsed",
-    )
+.custom-input-container:hover {
+    border-color: rgba(0, 150, 255, 0.6);
+    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.2);
+}
 
-with query_col:
-    query = st.text_area(
-        "📋 Research Question / Topic",
-        value=st.session_state["query"],
-        placeholder="e.g., 'What are the latest advances in quantum computing and their implications for cryptography?'",
-        height=100,
-    )
+/* Model selector inside input */
+.model-selector {
+    min-width: 160px;
+    padding: 8px 12px;
+    border: 1px solid rgba(100, 200, 255, 0.3);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #000000;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+}
 
-# Update session state when user types
-st.session_state["query"] = query
+.model-selector:focus {
+    border-color: #0099ff;
+    box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.2);
+}
 
-# Button below the input row
-col1, col2, col3 = st.columns([1, 1, 18])
-with col2:
-    run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
+/* Text area inside input */
+.query-textarea {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #000000;
+    resize: none;
+    background: transparent;
+}
+
+.query-textarea::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* Start button */
+.start-btn {
+    background: linear-gradient(135deg, #0066cc, #0099ff) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.start-btn:hover {
+    background: linear-gradient(135deg, #0088ff, #00bbff) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.4);
+}
+</style>
+
+<div class="custom-input-container">
+    <select class="model-selector" id="modelSelect">
+        <option value="openai/gpt-4o">🤖 GPT-4o</option>
+        <option value="openai/gpt-4o-mini">⚡ GPT-4o Mini</option>
+        <option value="anthropic/claude-3.1-sonnet">🧠 Claude 3.1</option>
+        <option value="google/gemini-2.0-flash">💎 Gemini 2.0</option>
+    </select>
+    <textarea class="query-textarea" id="queryInput" rows="3" placeholder="What would you like me to research?"></textarea>
+    <button class="start-btn" onclick="submitQuery()">🚀 Start Research</button>
+</div>
+
+<script>
+// Store values in session
+function submitQuery() {
+    const query = document.getElementById('queryInput').value;
+    const model = document.getElementById('modelSelect').value;
+    
+    if (query.trim()) {
+        // Set values and trigger rerun
+        window.location.href = window.location.pathname + '?query=' + encodeURIComponent(query) + '&model=' + encodeURIComponent(model);
+    }
+}
+
+// Handle Enter key (Shift+Enter for new line)
+document.getElementById('queryInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitQuery();
+    }
+});
+
+// Load saved values on page load
+window.addEventListener('load', function() {
+    const params = new URLSearchParams(window.location.search);
+    const savedQuery = params.get('query');
+    const savedModel = params.get('model');
+    
+    if (savedQuery) {
+        document.getElementById('queryInput').value = savedQuery;
+    }
+    if (savedModel) {
+        document.getElementById('modelSelect').value = savedModel;
+    }
+});
+</script>
+""", unsafe_allow_html=True)
+
+# ─── Handle input from URL params ──────────────────────────────
+query_params = st.query_params
+
+if "query" in query_params and "model" in query_params:
+    st.session_state["query"] = query_params["query"]
+    llm_model = query_params["model"]
+
+# Update session state
+if "query" not in st.session_state:
+    st.session_state["query"] = ""
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+if "current_report" not in st.session_state:
+    st.session_state["current_report"] = None
+if "research_done" not in st.session_state:
+    st.session_state["research_done"] = False
+
+# Default model if not set
+if "llm_model" not in st.session_state:
+    st.session_state["llm_model"] = "openai/gpt-4o"
+
+# Button for triggering research (hidden, used by JS)
+run_button = st.button("🚀 Start Research", type="primary", use_container_width=True, key="hidden_run_btn")
 
 
 # ─── Helper: Display Report ────────────────────────────────────
