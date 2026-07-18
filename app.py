@@ -50,16 +50,6 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("### Setup")
-    st.info(
-        "🔑 **API Key Required**\n\n"
-        "Copy `.env.example` to `.env` and add your OpenAI API key:\n\n"
-        "```bash\n"
-        "cp .env.example .env\n"
-        "```"
-    )
-
-    st.markdown("---")
     st.markdown("### About")
     st.markdown("""
     **Multi-Agent AI Deep Researcher**
@@ -81,9 +71,15 @@ st.markdown(
     "a deep, multi-source investigation and compile a comprehensive report."
 )
 
-# Initialize session state for query
+# Initialize session state
 if "query" not in st.session_state:
     st.session_state["query"] = ""
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+if "current_report" not in st.session_state:
+    st.session_state["current_report"] = None
+if "research_done" not in st.session_state:
+    st.session_state["research_done"] = False
 
 # ─── Input Section ─────────────────────────────────────────────
 query = st.text_area(
@@ -183,6 +179,57 @@ def display_report(report: ResearchReport):
         )
 
 
+# ─── Helper: Chat Follow-up ────────────────────────────────────
+def handle_follow_up(question: str, report: ResearchReport):
+    """Handle a follow-up question using the existing research context."""
+    from agents.report_agent import ReportAgent
+    from utils.llm import create_llm
+
+    llm = create_llm()
+
+    # Build context from the report
+    context = f"""
+RESEARCH CONTEXT:
+- Query: {report.query}
+- Title: {report.title}
+- Executive Summary: {report.executive_summary}
+
+KEY FINDINGS:
+"""
+    for i, finding in enumerate(report.findings, 1):
+        context += f"{i}. {finding.claim} (Confidence: {finding.confidence:.0%})\n"
+
+    if report.insights:
+        context += "\nKEY INSIGHTS:\n"
+        for i, insight in enumerate(report.insights, 1):
+            context += f"{i}. {insight.insight} (Category: {insight.category})\n"
+
+    if report.recommendations:
+        context += "\nRECOMMENDATIONS:\n"
+        for i, rec in enumerate(report.recommendations, 1):
+            context += f"{i}. {rec}\n"
+
+    # Generate follow-up response
+    prompt = f"""You are a research assistant that has just completed a deep investigation.
+
+{context}
+
+The user is asking a follow-up question based on this research.
+
+Follow-up Question: {question}
+
+Please provide a thoughtful, concise answer that:
+1. References specific findings from the research above
+2. Provides additional context or analysis
+3. Is honest about limitations or gaps in the research
+4. Suggests next steps if applicable
+
+Keep the response under 300 words. Be direct and helpful."""
+
+    response = llm.invoke(prompt)
+    return response.content
+
+
 # ─── Research Execution ────────────────────────────────────────
 if run_button and query.strip():
     with st.spinner("Initializing research agents..."):
@@ -266,6 +313,60 @@ if run_button and query.strip():
 
             # ── Display Report ─────────────────────────────────
             display_report(report)
+
+            # ── Store for follow-ups ───────────────────────────
+            st.session_state["current_report"] = report
+            st.session_state["research_done"] = True
+
+            # ── Chat Follow-up Section ─────────────────────────
+            st.markdown("---")
+            st.subheader("💬 Follow-up Questions")
+            st.caption("Ask anything about this research — the AI will answer based on the findings above.")
+
+            # Show chat history
+            if st.session_state["chat_history"]:
+                for i, chat in enumerate(st.session_state["chat_history"]):
+                    with st.container():
+                        col_q, col_a = st.columns([1, 4])
+                        with col_q:
+                            st.markdown("**👤 You:**")
+                        with col_a:
+                            st.markdown(chat["question"])
+
+                        with col_q:
+                            st.markdown("**🤖 AI:**")
+                        with col_a:
+                            st.markdown(chat["answer"])
+                        st.markdown("---")
+
+            # Chat input
+            chat_col1, chat_col2 = st.columns([4, 1])
+            with chat_col1:
+                follow_up = st.text_input(
+                    "Ask a follow-up question...",
+                    placeholder="e.g., 'What are the main risks mentioned?' or 'How does this compare to 2023?'",
+                    key="follow_up_input",
+                )
+            with chat_col2:
+                send_button = st.button("➡️", type="primary")
+
+            if send_button and follow_up.strip():
+                with st.spinner("🤖 Analyzing your question..."):
+                    try:
+                        report = st.session_state["current_report"]
+                        answer = handle_follow_up(follow_up, report)
+
+                        # Store in chat history
+                        st.session_state["chat_history"].append({
+                            "question": follow_up,
+                            "answer": answer,
+                        })
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)}")
+
+            if not follow_up.strip() and send_button:
+                st.warning("Please type a follow-up question.")
 
         except Exception as e:
             error_msg = str(e)
