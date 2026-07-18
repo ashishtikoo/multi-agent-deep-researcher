@@ -1,80 +1,37 @@
 """
-Multi-Agent AI Deep Researcher – Streamlit Web Application
-"""
-
-import streamlit as st
-import os
-import sys
-import hashlib
-from datetime import datetime
-import base64
-
-# Add project root to path
-sys.path.insert(0, os.path.dirname(__file__))
-
-from agents.orchestrator import ResearchOrchestrator
-from models import ResearchReport
-
-
-# ─── Load Background Image ─────────────────────────────────────
-def get_background_image():
-    """Load and encode the background image."""
-    bg_path = os.path.join(os.path.dirname(__file__), "assets", "background.jpeg")
-    if os.path.exists(bg_path):
-        with open(bg_path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    return None
-
-
-bg_image = get_background_image()
-
-# ─── Page Config ───────────────────────────────────────────────
-st.set_page_config(
-    page_title="Multi-Agent AI Deep Researcher",
-    page_icon="🔬",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
-# ─── Global Styles ─────────────────────────────────────────────
-if bg_image:
-    bg_css = f"""
-[data-testid="stAppViewContainer"] {{
-    background-image: url("data:image/jpeg;base64,{bg_image}");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}}
-"""
-else:
-    bg_css = """
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #0a0f1e 0%, #1a2a4a 50%, #0a0f1e 100%);
-}
-"""
 
 st.markdown("""
 <style>
 /* ─── Background Image ─── */
 """ + bg_css + """
 
+/* ─── Main Container ─── */
 [data-testid="stAppViewContainer"] > .main {
     background: rgba(10, 15, 30, 0.85);
+    color: #ffffff !important;
 }
 
 /* ─── Sidebar ─── */
 [data-testid="stSidebar"] {
-    background: rgba(15, 20, 40, 0.95);
-    border-right: 1px solid rgba(100, 200, 255, 0.2);
+    background: rgba(15, 20, 40, 0.95) !important;
+    border-right: 1px solid rgba(100, 200, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] * {
+    color: #ffffff !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown h1,
 [data-testid="stSidebar"] .stMarkdown h2,
 [data-testid="stSidebar"] .stMarkdown h3,
 [data-testid="stSidebar"] .stMarkdown p,
-[data-testid="stSidebar"] .stMarkdown strong {
-    color: #e0f0ff !important;
+[data-testid="stSidebar"] .stMarkdown strong,
+[data-testid="stSidebar"] .stMarkdown a,
+[data-testid="stSidebar"] .stMarkdown li,
+[data-testid="stSidebar"] .stMarkdown span,
+[data-testid="stSidebar"] .stMarkdown div {
+    color: #ffffff !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown hr {
@@ -82,17 +39,27 @@ st.markdown("""
 }
 
 /* ─── Main Content ─── */
+.main * {
+    color: #ffffff !important;
+}
+
 .main .stMarkdown h1,
 .main .stMarkdown h2,
 .main .stMarkdown h3,
-.main .stMarkdown h4 {
+.main .stMarkdown h4,
+.main .stMarkdown h5,
+.main .stMarkdown h6 {
     color: #ffffff !important;
     text-shadow: 0 2px 10px rgba(0, 150, 255, 0.5);
 }
 
 .main .stMarkdown p,
-.main .stMarkdown li {
-    color: #e0e8f0 !important;
+.main .stMarkdown li,
+.main .stMarkdown span,
+.main .stMarkdown div,
+.main .stMarkdown strong,
+.main .stMarkdown em {
+    color: #ffffff !important;
 }
 
 .main .stMarkdown a {
@@ -101,17 +68,17 @@ st.markdown("""
 
 /* ─── Buttons ─── */
 .stButton > button {
-    background: linear-gradient(135deg, #0066cc, #0099ff);
-    color: white !important;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-weight: 600;
+    background: linear-gradient(135deg, #0066cc, #0099ff) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 600 !important;
     transition: all 0.3s;
 }
 
 .stButton > button:hover {
-    background: linear-gradient(135deg, #0088ff, #00bbff);
+    background: linear-gradient(135deg, #0088ff, #00bbff) !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 150, 255, 0.4);
 }
@@ -134,6 +101,10 @@ st.markdown("""
     color: #ffffff !important;
 }
 
+.stSelectbox > div > div > div {
+    color: #ffffff !important;
+}
+
 /* ─── Tabs ─── */
 .stTabs [data-baseweb="tab-list"] {
     gap: 8px;
@@ -143,7 +114,7 @@ st.markdown("""
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
     border-radius: 8px 8px 0 0 !important;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
@@ -156,11 +127,15 @@ st.markdown("""
 .streamlit-expanderHeader {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.2) !important;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 .streamlit-expanderHeader:hover {
     background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.streamlit-expanderHeader > button {
+    color: #ffffff !important;
 }
 
 /* ─── Progress Bar ─── */
@@ -182,14 +157,14 @@ st.markdown("""
 .stAlert {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 /* ─── Download Buttons ─── */
 .stDownloadButton > button {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 .stDownloadButton > button:hover {
@@ -204,6 +179,7 @@ st.markdown("""
     border-radius: 8px !important;
     padding: 12px !important;
     margin-bottom: 8px !important;
+    color: #ffffff !important;
 }
 
 /* ─── Example Research Topics ─── */
@@ -211,7 +187,7 @@ st.markdown("""
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(100, 200, 255, 0.2) !important;
     border-radius: 8px !important;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
     font-size: 12px !important;
     padding: 8px 12px !important;
 }
@@ -251,7 +227,7 @@ st.markdown("""
 .dev-menu-btn {
     background: rgba(0, 150, 255, 0.2) !important;
     border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #e0f0ff !important;
+    color: #ffffff !important;
     backdrop-filter: blur(10px);
 }
 
@@ -264,10 +240,11 @@ st.markdown("""
     background: rgba(15, 20, 40, 0.95) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
     backdrop-filter: blur(10px);
+    color: #ffffff !important;
 }
 
 .dev-menu-item {
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 .dev-menu-item:hover {
@@ -389,7 +366,7 @@ components.html("""
 .dev-menu-btn {
     background: rgba(0, 150, 255, 0.2) !important;
     border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #e0f0ff !important;
+    color: #ffffff !important;
     backdrop-filter: blur(10px);
     width: 40px;
     height: 40px;
@@ -422,6 +399,7 @@ components.html("""
     padding: 8px 0;
     animation: fadeIn 0.2s;
     backdrop-filter: blur(10px);
+    color: #ffffff !important;
 }
 
 .dev-dropdown.show {
@@ -446,7 +424,7 @@ components.html("""
     width: 100%;
     text-align: left;
     font-size: 14px;
-    color: #e0e8f0 !important;
+    color: #ffffff !important;
 }
 
 .dev-menu-item:hover {
@@ -465,7 +443,7 @@ components.html("""
 
 .dev-menu-item .sublabel {
     font-size: 11px;
-    color: #888 !important;
+    color: #cccccc !important;
     margin-top: 2px;
 }
 
@@ -510,7 +488,7 @@ components.html("""
 <div class="dev-menu-container">
     <button class="dev-menu-btn" onclick="toggleDevMenu()">⋯</button>
     <div class="dev-dropdown" id="devDropdown">
-        <div style="padding: 12px 16px 8px; font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Developer Options</div>
+        <div style="padding: 12px 16px 8px; font-size: 12px; color: #cccccc; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Developer Options</div>
         
         <button class="dev-menu-item" onclick="toggleRunOnSave()">
             <span class="icon">🔄</span>
@@ -530,7 +508,7 @@ components.html("""
         
         <div class="dev-menu-divider"></div>
         
-        <div style="padding: 8px 16px; font-size: 11px; color: #aaa; text-align: center;">v1.0.0</div>
+        <div style="padding: 8px 16px; font-size: 11px; color: #cccccc; text-align: center;">v1.0.0</div>
     </div>
 </div>
 
