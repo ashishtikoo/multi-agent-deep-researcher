@@ -525,6 +525,12 @@ with st.sidebar:
     Built with LangChain & Streamlit
     """)
 
+    st.markdown("---")
+    st.markdown("### LLM Model")
+    st.markdown("""
+    ⚠️ Model selection is now in the main input area above.
+    """)
+
 
 # ─── Main Content ──────────────────────────────────────────────
 st.title("🔬 Multi-Agent AI Deep Researcher")
@@ -790,17 +796,33 @@ window.addEventListener('load', function() {
 """, height=0)
 
 # ─── Input Section ─────────────────────────────────────────────
-query = st.text_area(
-    "📋 Research Question / Topic",
-    value=st.session_state["query"],
-    placeholder="e.g., 'What are the latest advances in quantum computing and their implications for cryptography?'",
-    height=100,
-)
+# Model selector and research input in one row
+model_col, query_col = st.columns([1, 4])
+
+with model_col:
+    llm_model = st.selectbox(
+        "Model",
+        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.1-sonnet", "google/gemini-2.0-flash"],
+        index=0,
+        help="Select the AI model for research",
+        label_visibility="collapsed",
+    )
+
+with query_col:
+    query = st.text_area(
+        "📋 Research Question / Topic",
+        value=st.session_state["query"],
+        placeholder="e.g., 'What are the latest advances in quantum computing and their implications for cryptography?'",
+        height=100,
+    )
 
 # Update session state when user types
 st.session_state["query"] = query
 
-run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
+# Button below the input row
+col1, col2, col3 = st.columns([1, 1, 18])
+with col2:
+    run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
 
 
 # ─── Helper: Display Report ────────────────────────────────────
