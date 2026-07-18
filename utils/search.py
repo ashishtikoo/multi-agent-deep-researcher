@@ -16,7 +16,7 @@ def web_search(query: str, max_results: int = 10) -> list[Source]:
     sources = []
 
     # Try Tavily first
-    if settings.tavily_api_key and settings.tavily_api_key != "your-tavily-key-here":
+    if settings.tavily_api_key and settings.tavily_api_key not in ("", "your-tavily-key-here"):
         try:
             from tavily import TavilyClient
             client = TavilyClient(api_key=settings.tavily_api_key)
@@ -56,12 +56,10 @@ def web_search(query: str, max_results: int = 10) -> list[Source]:
 
 def academic_search(query: str, max_results: int = 10) -> list[Source]:
     """
-    Search academic sources (simulated via web search + filtering).
-    In production, integrate with Semantic Scholar API, arXiv API, etc.
+    Search academic sources using Semantic Scholar API.
     """
     sources = []
 
-    # Try Semantic Scholar API
     try:
         import urllib.request
         url = f"https://api.semanticscholar.org/graph/v1/paper/search"

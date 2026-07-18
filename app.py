@@ -22,6 +22,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
 # ─── Sidebar ───────────────────────────────────────────────────
 with st.sidebar:
     st.title("🔬 Deep Researcher")
@@ -36,9 +37,15 @@ with st.sidebar:
         help="The LLM to use for agent reasoning",
     )
 
-    verbose = st.checkbox("Verbose Output", value=True)
-
-    demo_mode = st.checkbox("Demo Mode (No API Keys Required)", value=False)
+    st.markdown("---")
+    st.markdown("### Setup")
+    st.info(
+        "🔑 **API Key Required**\n\n"
+        "Copy `.env.example` to `.env` and add your OpenAI API key:\n\n"
+        "```bash\n"
+        "cp .env.example .env\n"
+        "```"
+    )
 
     st.markdown("---")
     st.markdown("### About")
@@ -73,17 +80,16 @@ col1, col2 = st.columns([1, 5])
 with col1:
     run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
 
+
 # ─── Helper: Display Report ────────────────────────────────────
 def display_report(report: ResearchReport):
     """Display a research report in the Streamlit UI."""
     st.success("✅ Research Complete!")
     st.markdown("---")
 
-    # Report header
     st.markdown(f"## {report.title}")
     st.caption(f"Research Query: {report.query} | Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M')}")
 
-    # Tabs for different sections
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📋 Summary",
         "🔍 Findings",
@@ -159,86 +165,111 @@ def display_report(report: ResearchReport):
 
 # ─── Research Execution ────────────────────────────────────────
 if run_button and query.strip():
-    if demo_mode:
-        # Demo mode: use pre-built data
-        with st.spinner("Generating demo research report..."):
-            from demo_data import get_demo_report
-            report = get_demo_report(query)
+    with st.spinner("Initializing research agents..."):
+        try:
+            orchestrator = ResearchOrchestrator(llm_model=llm_model, verbose=False)
+
+            # ── Step 1: Retrieval ──────────────────────────────
+            progress_bar = st.progress(0, text="🔍 Step 1/4: Gathering information from multiple sources...")
+            sources_container = st.container()
+
+            with sources_container:
+                st.markdown("#### 🔍 Step 1: Retrieving Sources")
+                sources = orchestrator.retriever.retrieve(query)
+                st.markdown(f"**✅ Found {len(sources)} unique sources**")
+                for i, s in enumerate(sources[:8], 1):
+                    st.markdown(f"{i}. **{s.title}**")
+                    st.caption(f"   Type: {s.source_type.value} | URL: {s.url[:80]}...")
+                if len(sources) > 8:
+                    st.caption(f"... and {len(sources) - 8} more sources")
+
+            # ── Step 2: Analysis ───────────────────────────────
+            progress_bar.progress(35, text="🧠 Step 2/4: Analyzing findings...")
+            analysis_container = st.container()
+
+            with analysis_container:
+                st.markdown("#### 🧠 Step 2: Analyzing Findings")
+                analysis = orchestrator.analyst.analyze(sources, query)
+                findings = analysis["findings"]
+                contradictions = analysis["contradictions"]
+                st.markdown(f"**✅ Extracted {len(findings)} findings**")
+                for i, f in enumerate(findings[:5], 1):
+                    st.markdown(f"{i}. {f.claim[:200]}...")
+                    st.caption(f"   Confidence: {f.confidence:.0%} | Sources: {', '.join(f.supporting_sources[:2])}")
+                if contradictions:
+                    st.warning(f"**⚠️ {len(contradictions)} contradictions detected**")
+                    for c in contradictions[:3]:
+                        st.markdown(f"- {c.claim_a[:150]}")
+                        st.caption(f"  vs {c.claim_b[:150]}")
+                else:
+                    st.success("✅ No contradictions detected")
+
+            # ── Step 3: Insights ───────────────────────────────
+            progress_bar.progress(65, text="💡 Step 3/4: Generating insights...")
+            insights_container = st.container()
+
+            with insights_container:
+                st.markdown("#### 💡 Step 3: Generating Insights")
+                insight_data = orchestrator.insights.analyze(
+                    findings, contradictions, sources, query
+                )
+                insights = insight_data["insights"]
+                trends = insight_data.get("trends", [])
+                hypotheses = insight_data.get("hypotheses", [])
+                st.markdown(f"**✅ Generated {len(insights)} insights**")
+                for i, ins in enumerate(insights[:5], 1):
+                    st.markdown(f"{i}. {ins.insight[:200]}...")
+                    st.caption(f"   Category: {ins.category} | Confidence: {ins.confidence:.0%}")
+                if trends:
+                    st.info(f"📈 **{len(trends)} trends identified**")
+                if hypotheses:
+                    st.info(f"🧪 **{len(hypotheses)} hypotheses generated**")
+
+            # ── Step 4: Report ─────────────────────────────────
+            progress_bar.progress(90, text="📝 Step 4/4: Compiling research report...")
+            report_container = st.container()
+
+            with report_container:
+                st.markdown("#### 📝 Step 4: Compiling Report")
+
+            research_data = {
+                "query": query,
+                "sources": sources,
+                "findings": findings,
+                "insights": insights,
+                "contradictions": contradictions,
+                "trends": trends,
+                "hypotheses": hypotheses,
+            }
+            report = orchestrator.reporter.compile(research_data)
+            progress_bar.progress(100, text="✅ Research complete!")
+
+            # ── Display Report ─────────────────────────────────
             display_report(report)
-        st.info("🎭 Running in Demo Mode — using pre-built data for demonstration.")
-    else:
-        # Real mode: run the full agent pipeline
-        with st.spinner("Initializing research agents..."):
-            try:
-                orchestrator = ResearchOrchestrator(llm_model=llm_model, verbose=verbose)
 
-                # Show progress
-                progress_bar = st.progress(0, text="Initializing agents...")
+        except Exception as e:
+            error_msg = str(e)
+            st.error(f"❌ Research failed: {error_msg}")
 
-                # Step 1: Retrieval
-                progress_bar.progress(15, text="🔍 Gathering information from multiple sources...")
-                with st.expander("🔍 Step 1: Retrieving Sources", expanded=False):
-                    sources = orchestrator.retriever.retrieve(query)
-                    st.write(f"**Found {len(sources)} sources**")
-                    for i, s in enumerate(sources[:5], 1):
-                        st.markdown(f"{i}. **{s.title}**")
-                        st.caption(f"   Type: {s.source_type.value} | URL: {s.url[:80]}...")
-                    if len(sources) > 5:
-                        st.caption(f"... and {len(sources) - 5} more sources")
-
-                # Step 2: Analysis
-                progress_bar.progress(40, text="🧠 Analyzing findings...")
-                with st.expander("🧠 Step 2: Analyzing Findings", expanded=False):
-                    analysis = orchestrator.analyst.analyze(sources, query)
-                    findings = analysis["findings"]
-                    contradictions = analysis["contradictions"]
-                    st.write(f"**Extracted {len(findings)} findings**")
-                    for i, f in enumerate(findings[:5], 1):
-                        st.markdown(f"{i}. {f.claim[:200]}...")
-                        st.caption(f"   Confidence: {f.confidence:.0%}")
-                    if contradictions:
-                        st.warning(f"**{len(contradictions)} contradictions detected**")
-                        for c in contradictions[:3]:
-                            st.markdown(f"- {c.claim_a[:150]} vs {c.claim_b[:150]}")
-
-                # Step 3: Insights
-                progress_bar.progress(70, text="💡 Generating insights...")
-                with st.expander("💡 Step 3: Generating Insights", expanded=False):
-                    insight_data = orchestrator.insights.analyze(
-                        findings, contradictions, sources, query
-                    )
-                    insights = insight_data["insights"]
-                    trends = insight_data.get("trends", [])
-                    hypotheses = insight_data.get("hypotheses", [])
-                    st.write(f"**Generated {len(insights)} insights**")
-                    for i, ins in enumerate(insights[:5], 1):
-                        st.markdown(f"{i}. {ins.insight[:200]}...")
-                        st.caption(f"   Category: {ins.category} | Confidence: {ins.confidence:.0%}")
-                    if trends:
-                        st.info(f"**{len(trends)} trends identified**")
-                    if hypotheses:
-                        st.info(f"**{len(hypotheses)} hypotheses generated**")
-
-                # Step 4: Report
-                progress_bar.progress(90, text="📝 Compiling research report...")
-                research_data = {
-                    "query": query,
-                    "sources": sources,
-                    "findings": findings,
-                    "insights": insights,
-                    "contradictions": contradictions,
-                    "trends": trends,
-                    "hypotheses": hypotheses,
-                }
-                report = orchestrator.reporter.compile(research_data)
-                progress_bar.progress(100, text="✅ Research complete!")
-
-                # Display report
-                display_report(report)
-
-            except Exception as e:
-                st.error(f"❌ Research failed: {str(e)}")
-                st.error("Make sure your API keys are set in the .env file.")
+            if "api_key" in error_msg.lower() or "openai" in error_msg.lower():
+                st.error(
+                    "🔑 **API Key Not Configured**\n\n"
+                    "1. Copy `.env.example` to `.env` in the project folder\n"
+                    "2. Add your OpenAI API key to `.env`:\n\n"
+                    "```env\n"
+                    "OPENAI_API_KEY=sk-proj-your-key-here\n"
+                    "```\n\n"
+                    "3. Restart the Streamlit app"
+                )
+            elif "tavily" in error_msg.lower() or "tavily" in error_msg.lower():
+                st.warning(
+                    "⚠️ **Tavily API Key Not Set**\n\n"
+                    "Web search results may be limited. The agents will still work "
+                    "using academic sources. To enable full web search, add your "
+                    "Tavily API key to `.env` (free tier at tavily.com)."
+                )
+            else:
+                st.error("Check the terminal for detailed error logs.")
 
 elif run_button and not query.strip():
     st.warning("Please enter a research question or topic.")
@@ -256,6 +287,6 @@ examples = [
 ]
 
 for example in examples:
-    if st.button(example, key=example[:30]):
-        st.session_state["query"] = example
+    if st.button(example, key=example[:30], use_container_width=True):
+        query = example
         st.rerun()
