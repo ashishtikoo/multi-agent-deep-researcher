@@ -62,6 +62,14 @@ with st.sidebar:
         if os.path.exists(config_path):
             os.remove(config_path)
 
+    if st.button("🗑️ Clear Cache", help="Clear Streamlit's internal cache and restart the app"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.session_state["chat_history"] = []
+        st.session_state["current_report"] = None
+        st.session_state["research_done"] = False
+        st.rerun()
+
     st.markdown("---")
     st.markdown("### About")
     st.markdown("""
