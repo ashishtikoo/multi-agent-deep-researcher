@@ -39,17 +39,6 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("### Setup")
-    st.info(
-        "🔑 **API Key Required**\n\n"
-        "Copy `.env.example` to `.env` and add your **OpenRouter** API key:\n\n"
-        "```bash\n"
-        "cp .env.example .env\n"
-        "```\n\n"
-        "Get a free key: [openrouter.ai/keys](https://openrouter.ai/keys)"
-    )
-
-    st.markdown("---")
     st.markdown("### About")
     st.markdown("""
     **Multi-Agent AI Deep Researcher**
