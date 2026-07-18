@@ -11,12 +11,12 @@ def format_findings(findings: list[Finding]) -> str:
         return "No findings available."
 
     lines = []
-    for i, f in enumerate(findings, 1):
-        lines.append(f"Finding {i}: {f.claim}")
-        lines.append(f"  Confidence: {f.confidence:.0%}")
-        lines.append(f"  Sources: {', '.join(f.supporting_sources)}")
-        if f.contradictions:
-            lines.append(f"  Contradictions: {len(f.contradictions)} noted")
+    for i, finding in enumerate(findings, 1):
+        lines.append(f"Finding {i}: {finding.claim}")
+        lines.append(f"  Confidence: {finding.confidence:.0%}")
+        lines.append(f"  Sources: {', '.join(finding.supporting_sources)}")
+        if finding.contradictions:
+            lines.append(f"  Contradictions: {len(finding.contradictions)} noted")
         lines.append("")
     return "\n".join(lines)
 

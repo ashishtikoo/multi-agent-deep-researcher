@@ -184,7 +184,7 @@ Return your response as a JSON object:
         sources: list[Source],
     ) -> list[dict]:
         """Identify emerging trends from findings."""
-        findings_text = "\n".join(f"- {f.claim}" for f in findings)
+        findings_text = "\n".join(f"- {finding.claim}" for finding in findings)
         sources_text = "\n".join(f"- {s.title} ({s.source_type.value})" for s in sources)
 
         user_message = f"Findings:\n{findings_text}\n\nSources:\n{sources_text}"

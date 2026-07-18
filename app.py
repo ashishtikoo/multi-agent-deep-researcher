@@ -204,9 +204,9 @@ if run_button and query.strip():
                 findings = analysis["findings"]
                 contradictions = analysis["contradictions"]
                 st.markdown(f"**✅ Extracted {len(findings)} findings**")
-                for i, f in enumerate(findings[:5], 1):
-                    st.markdown(f"{i}. {f.claim[:200]}...")
-                    st.caption(f"   Confidence: {f.confidence:.0%} | Sources: {', '.join(f.supporting_sources[:2])}")
+                for i, finding in enumerate(findings[:5], 1):
+                    st.markdown(f"{i}. {finding.claim[:200]}...")
+                    st.caption(f"   Confidence: {finding.confidence:.0%} | Sources: {', '.join(finding.supporting_sources[:2])}")
                 if contradictions:
                     st.warning(f"**⚠️ {len(contradictions)} contradictions detected**")
                     for c in contradictions[:3]:
