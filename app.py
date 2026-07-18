@@ -39,38 +39,6 @@ with st.sidebar:
     )
 
     st.markdown("---")
-    st.markdown("### Developer Options")
-
-    run_on_save = st.checkbox(
-        "Run on Save",
-        value=False,
-        help="Automatically restart the app when files are saved (useful during development)",
-    )
-
-    if run_on_save:
-        # Create .streamlit/config.toml to enable runOnSave
-        import os
-        config_dir = os.path.join(os.path.dirname(__file__), ".streamlit")
-        os.makedirs(config_dir, exist_ok=True)
-        config_path = os.path.join(config_dir, "config.toml")
-        with open(config_path, "w") as f:
-            f.write("[server]\nrunOnSave = true\n")
-        st.info("✅ Run on Save enabled — app will restart on file saves.")
-    else:
-        # Remove the config file if it exists
-        config_path = os.path.join(os.path.dirname(__file__), ".streamlit", "config.toml")
-        if os.path.exists(config_path):
-            os.remove(config_path)
-
-    if st.button("🗑️ Clear Cache", help="Clear Streamlit's internal cache and restart the app"):
-        st.cache_data.clear()
-        st.cache_resource.clear()
-        st.session_state["chat_history"] = []
-        st.session_state["current_report"] = None
-        st.session_state["research_done"] = False
-        st.rerun()
-
-    st.markdown("---")
     st.markdown("### About")
     st.markdown("""
     **Multi-Agent AI Deep Researcher**
@@ -101,6 +69,250 @@ if "current_report" not in st.session_state:
     st.session_state["current_report"] = None
 if "research_done" not in st.session_state:
     st.session_state["research_done"] = False
+
+# ─── Handle Developer Options Actions ──────────────────────────
+import os
+
+def handle_dev_actions():
+    """Handle developer actions from query parameters."""
+    query_params = st.query_params
+    
+    # Handle Run on Save toggle
+    if "dev_run_on_save" in query_params:
+        enabled = query_params["dev_run_on_save"] == "true"
+        config_dir = os.path.join(os.path.dirname(__file__), ".streamlit")
+        os.makedirs(config_dir, exist_ok=True)
+        config_path = os.path.join(config_dir, "config.toml")
+        
+        if enabled:
+            with open(config_path, "w") as f:
+                f.write("[server]\nrunOnSave = true\n")
+        else:
+            if os.path.exists(config_path):
+                os.remove(config_path)
+        
+        # Clear the query param to avoid infinite loop
+        st.query_params.clear()
+        st.rerun()
+    
+    # Handle Clear Cache
+    if "dev_clear_cache" in query_params:
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.session_state["chat_history"] = []
+        st.session_state["current_report"] = None
+        st.session_state["research_done"] = False
+        st.query_params.clear()
+        st.rerun()
+
+handle_dev_actions()
+
+# ─── Top-Right Menu (Developer Options) ────────────────────────
+import streamlit.components.v1 as components
+
+components.html("""
+<style>
+/* Top-right menu container */
+.dev-menu-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Menu button */
+.dev-menu-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.dev-menu-btn:hover {
+    background: #f5f5f5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.05);
+}
+
+/* Dropdown menu */
+.dev-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 240px;
+    padding: 8px 0;
+    animation: fadeIn 0.2s;
+}
+
+.dev-dropdown.show {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Menu items */
+.dev-menu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
+
+.dev-menu-item:hover {
+    background: #f5f5f5;
+}
+
+.dev-menu-item .icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.dev-menu-item .label {
+    flex: 1;
+}
+
+.dev-menu-item .sublabel {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.dev-menu-divider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 8px 0;
+}
+
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: #ccc;
+    border-radius: 11px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.toggle-switch.active {
+    background: #4CAF50;
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.toggle-switch.active::after {
+    transform: translateX(18px);
+}
+</style>
+
+<div class="dev-menu-container">
+    <button class="dev-menu-btn" onclick="toggleDevMenu()">⋯</button>
+    <div class="dev-dropdown" id="devDropdown">
+        <div style="padding: 12px 16px 8px; font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Developer Options</div>
+        
+        <button class="dev-menu-item" onclick="toggleRunOnSave()">
+            <span class="icon">🔄</span>
+            <div>
+                <div class="label">Run on Save</div>
+                <div class="sublabel">Auto-restart when files change</div>
+            </div>
+            <div class="toggle-switch" id="runOnSaveToggle"></div>
+        </button>
+        
+        <div class="dev-menu-divider"></div>
+        
+        <button class="dev-menu-item" onclick="clearCache()">
+            <span class="icon">🗑️</span>
+            <div class="label">Clear Cache & Reset</div>
+        </button>
+        
+        <div class="dev-menu-divider"></div>
+        
+        <div style="padding: 8px 16px; font-size: 11px; color: #aaa; text-align: center;">v1.0.0</div>
+    </div>
+</div>
+
+<script>
+function toggleDevMenu() {
+    const dropdown = document.getElementById('devDropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+    const container = document.querySelector('.dev-menu-container');
+    const dropdown = document.getElementById('devDropdown');
+    if (!container.contains(e.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+function toggleRunOnSave() {
+    const toggle = document.getElementById('runOnSaveToggle');
+    const isActive = toggle.classList.contains('active');
+    
+    if (isActive) {
+        toggle.classList.remove('active');
+        // Disable runOnSave via query param
+        window.location.href = window.location.pathname + '?dev_run_on_save=false';
+    } else {
+        toggle.classList.add('active');
+        // Enable runOnSave via query param
+        window.location.href = window.location.pathname + '?dev_run_on_save=true';
+    }
+}
+
+function clearCache() {
+    if (confirm('Clear cache and reset the app? This will restart the application.')) {
+        window.location.href = window.location.pathname + '?dev_clear_cache=true';
+    }
+}
+
+// Initialize toggle state from query params
+window.addEventListener('load', function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev_run_on_save') === 'true') {
+        document.getElementById('runOnSaveToggle').classList.add('active');
+    }
+});
+</script>
+""", height=0)
 
 # ─── Input Section ─────────────────────────────────────────────
 query = st.text_area(
