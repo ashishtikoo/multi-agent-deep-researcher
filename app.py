@@ -144,17 +144,17 @@ st.markdown("""
 }
 
 [data-testid="stSidebar"] .stCheckbox > label > div > div {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Main Content ─── */
 .main {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Main Content - Override All Text ─── */
 .main * {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .main .stMarkdown h1,
@@ -163,8 +163,7 @@ st.markdown("""
 .main .stMarkdown h4,
 .main .stMarkdown h5,
 .main .stMarkdown h6 {
-    color: #ffffff !important;
-    text-shadow: 0 2px 10px rgba(0, 150, 255, 0.5);
+    color: #000000 !important;
 }
 
 .main .stMarkdown p,
@@ -174,41 +173,41 @@ st.markdown("""
 .main .stMarkdown strong,
 .main .stMarkdown em,
 .main .stMarkdown a {
-    color: #e0e8f0 !important;
+    color: #000000 !important;
 }
 
 /* ─── Main Page Title ─── */
 .main > div > div:nth-child(1) > div:nth-child(1) > h1 {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .main > div > div:nth-child(1) > div:nth-child(1) > h1 > span {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Main Page Paragraph ─── */
 .main > div > div:nth-child(1) > div:nth-child(1) > p {
-    color: #e0e8f0 !important;
+    color: #000000 !important;
 }
 
 /* ─── Main Page Section Headers ─── */
 .main > div > div:nth-child(1) > div:nth-child(1) > h2 {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for st.text_area label ─── */
 .stTextInput > label > div > div {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for all headings ─── */
 h1, h2, h3, h4, h5, h6 {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for all paragraphs ─── */
 p {
-    color: #e0e8f0 !important;
+    color: #000000 !important;
 }
 
 .main .stMarkdown a {
@@ -218,30 +217,30 @@ p {
 /* ─── Fix for Streamlit's internal components ─── */
 .main > div > div:nth-child(2) > div > div > div > div > div > div,
 .main > div > div:nth-child(2) > div > div > div > div > div > div > div {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for selectbox dropdown ─── */
 .stSelectbox > div > div > div > div > div {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for text area ─── */
 .stTextArea > div > div > textarea {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Fix for chat history ─── */
 [data-testid="stContainer"] p,
 [data-testid="stContainer"] span,
 [data-testid="stContainer"] div {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Buttons ─── */
 .stButton > button {
     background: linear-gradient(135deg, #0066cc, #0099ff) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
     border: none !important;
     border-radius: 8px !important;
     padding: 0.5rem 1rem !important;
@@ -346,20 +345,20 @@ p {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
     border-radius: 8px 8px 0 0 !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
     background: rgba(0, 150, 255, 0.3) !important;
     border-bottom-color: rgba(0, 150, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Expander ─── */
 .streamlit-expanderHeader {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.2) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .streamlit-expanderHeader:hover {
@@ -367,7 +366,7 @@ p {
 }
 
 .streamlit-expanderHeader > button {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Progress Bar ─── */
@@ -389,14 +388,14 @@ p {
 .stAlert {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Download Buttons ─── */
 .stDownloadButton > button {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .stDownloadButton > button:hover {
@@ -411,7 +410,7 @@ p {
     border-radius: 8px !important;
     padding: 12px !important;
     margin-bottom: 8px !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Example Research Topics ─── */
@@ -419,7 +418,7 @@ p {
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(100, 200, 255, 0.2) !important;
     border-radius: 8px !important;
-    color: #ffffff !important;
+    color: #000000 !important;
     font-size: 12px !important;
     padding: 8px 12px !important;
 }
@@ -459,7 +458,7 @@ p {
 .dev-menu-btn {
     background: rgba(0, 150, 255, 0.2) !important;
     border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
     backdrop-filter: blur(10px);
 }
 
@@ -472,11 +471,11 @@ p {
     background: rgba(15, 20, 40, 0.95) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
     backdrop-filter: blur(10px);
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .dev-menu-item {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .dev-menu-item:hover {
@@ -588,7 +587,7 @@ components.html("""
 .dev-menu-btn {
     background: rgba(0, 150, 255, 0.2) !important;
     border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
     backdrop-filter: blur(10px);
     width: 40px;
     height: 40px;
@@ -645,7 +644,7 @@ components.html("""
     width: 100%;
     text-align: left;
     font-size: 14px;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 .dev-menu-item:hover {
@@ -779,153 +778,24 @@ window.addEventListener('load', function() {
 </script>
 """, height=0)
 
-# ─── Input Section ─────────────────────────────────────────────
-# Custom input with integrated model selector using HTML/CSS
-st.markdown("""
-<style>
-/* Custom input container */
-.custom-input-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid rgba(100, 200, 255, 0.4);
-    border-radius: 12px;
-    margin-bottom: 15px;
-}
+# ─── Native Streamlit widgets ─────────────────────────────────
+llm_model = st.selectbox(
+    "",
+    options=["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.1-sonnet", "google/gemini-2.0-flash"],
+    index=0,
+    key="llm_model_selectbox",
+    label_visibility="collapsed",
+)
 
-.custom-input-container:hover {
-    border-color: rgba(0, 150, 255, 0.6);
-    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.2);
-}
+query = st.text_area(
+    "",
+    placeholder="What would you like me to research?",
+    height=80,
+    key="query_input",
+    label_visibility="collapsed",
+)
 
-/* Model selector inside input */
-.model-selector {
-    min-width: 160px;
-    padding: 8px 12px;
-    border: 1px solid rgba(100, 200, 255, 0.3);
-    border-radius: 8px;
-    background: #ffffff;
-    color: #000000;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    outline: none;
-}
-
-.model-selector:focus {
-    border-color: #0099ff;
-    box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.2);
-}
-
-/* Text area inside input */
-.query-textarea {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    color: #000000;
-    resize: none;
-    background: transparent;
-}
-
-.query-textarea::placeholder {
-    color: rgba(0, 0, 0, 0.4);
-}
-
-/* Start button */
-.start-btn {
-    background: linear-gradient(135deg, #0066cc, #0099ff) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 10px 24px !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    cursor: pointer;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-.start-btn:hover {
-    background: linear-gradient(135deg, #0088ff, #00bbff) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.4);
-}
-</style>
-
-<div class="custom-input-container">
-    <select class="model-selector" id="modelSelect">
-        <option value="openai/gpt-4o">🤖 GPT-4o</option>
-        <option value="openai/gpt-4o-mini">⚡ GPT-4o Mini</option>
-        <option value="anthropic/claude-3.1-sonnet">🧠 Claude 3.1</option>
-        <option value="google/gemini-2.0-flash">💎 Gemini 2.0</option>
-    </select>
-    <textarea class="query-textarea" id="queryInput" rows="3" placeholder="What would you like me to research?"></textarea>
-    <button class="start-btn" onclick="submitQuery()">🚀 Start Research</button>
-</div>
-
-<script>
-// Store values in session
-function submitQuery() {
-    const query = document.getElementById('queryInput').value;
-    const model = document.getElementById('modelSelect').value;
-    
-    if (query.trim()) {
-        // Set values and trigger rerun
-        window.location.href = window.location.pathname + '?query=' + encodeURIComponent(query) + '&model=' + encodeURIComponent(model);
-    }
-}
-
-// Handle Enter key (Shift+Enter for new line)
-document.getElementById('queryInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        submitQuery();
-    }
-});
-
-// Load saved values on page load
-window.addEventListener('load', function() {
-    const params = new URLSearchParams(window.location.search);
-    const savedQuery = params.get('query');
-    const savedModel = params.get('model');
-    
-    if (savedQuery) {
-        document.getElementById('queryInput').value = savedQuery;
-    }
-    if (savedModel) {
-        document.getElementById('modelSelect').value = savedModel;
-    }
-});
-</script>
-""", unsafe_allow_html=True)
-
-# ─── Handle input from URL params ──────────────────────────────
-query_params = st.query_params
-
-if "query" in query_params and "model" in query_params:
-    st.session_state["query"] = query_params["query"]
-    llm_model = query_params["model"]
-
-# Update session state
-if "query" not in st.session_state:
-    st.session_state["query"] = ""
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
-if "current_report" not in st.session_state:
-    st.session_state["current_report"] = None
-if "research_done" not in st.session_state:
-    st.session_state["research_done"] = False
-
-# Default model if not set
-if "llm_model" not in st.session_state:
-    st.session_state["llm_model"] = "openai/gpt-4o"
-
-# Button for triggering research (hidden, used by JS)
-run_button = st.button("🚀 Start Research", type="primary", use_container_width=True, key="hidden_run_btn")
+run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
 
 
 # ─── Helper: Display Report ────────────────────────────────────
