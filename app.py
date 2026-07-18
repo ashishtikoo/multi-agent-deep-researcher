@@ -59,7 +59,7 @@ st.markdown("""
 /* ─── Background Image ─── */
 """ + bg_css + """
 [data-testid="stAppViewContainer"] > .main {
-    background: rgba(60, 75, 50, 0.95);
+    background: rgba(240, 248, 220, 0.95);
 }
 
 /* ─── Sidebar ─── */
