@@ -96,16 +96,16 @@ Return your response as a JSON object:
     ) -> list[Insight]:
         """Generate insights from findings and contradictions."""
         findings_text = "\n".join(
-            f"Finding {i+1}: {f.claim}\n"
-            f"  Confidence: {f.confidence:.0%}\n"
-            f"  Sources: {', '.join(f.supporting_sources)}\n"
-            for i, f in enumerate(findings)
+            f"Finding {i+1}: {finding.claim}\n"
+            f"  Confidence: {finding.confidence:.0%}\n"
+            f"  Sources: {', '.join(finding.supporting_sources)}\n"
+            for i, finding in enumerate(findings)
         )
 
         contradictions_text = "\n".join(
-            f"Conflict {i+1}: {c.claim_a} vs {c.claim_b}\n"
-            f"  Sources: {c.source_a} vs {c.source_b}\n"
-            for i, c in enumerate(contradictions)
+            f"Conflict {i+1}: {contradiction.claim_a} vs {contradiction.claim_b}\n"
+            f"  Sources: {contradiction.source_a} vs {contradiction.source_b}\n"
+            for i, contradiction in enumerate(contradictions)
         )
 
         sources_text = "\n".join(
@@ -156,9 +156,9 @@ Return your response as a JSON object:
         contradictions: list[Contradiction],
     ) -> list[dict]:
         """Generate testable hypotheses from findings."""
-        findings_text = "\n".join(f"- {f.claim}" for f in findings)
+        findings_text = "\n".join(f"- {finding.claim}" for finding in findings)
         contradictions_text = "\n".join(
-            f"- {c.claim_a} vs {c.claim_b}" for c in contradictions
+            f"- {contradiction.claim_a} vs {contradiction.claim_b}" for contradiction in contradictions
         )
 
         user_message = f"Findings:\n{findings_text}\n\nContradictions:\n{contradictions_text}"

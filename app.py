@@ -120,12 +120,12 @@ def display_report(report: ResearchReport):
 
     with tab2:
         st.markdown("### Key Findings")
-        for i, f in enumerate(report.findings, 1):
-            with st.expander(f"Finding {i}: {f.claim[:150]}...", expanded=False):
-                st.markdown(f"**Confidence:** {f.confidence:.0%}")
-                st.markdown(f"**Supporting Sources:** {', '.join(f.supporting_sources)}")
-                if f.contradictions:
-                    st.warning(f"**Contradictions:** {len(f.contradictions)} noted")
+        for i, finding in enumerate(report.findings, 1):
+            with st.expander(f"Finding {i}: {finding.claim[:150]}...", expanded=False):
+                st.markdown(f"**Confidence:** {finding.confidence:.0%}")
+                st.markdown(f"**Supporting Sources:** {', '.join(finding.supporting_sources)}")
+                if finding.contradictions:
+                    st.warning(f"**Contradictions:** {len(finding.contradictions)} noted")
 
     with tab3:
         st.markdown("### Generated Insights")

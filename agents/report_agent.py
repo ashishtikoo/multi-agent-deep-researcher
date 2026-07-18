@@ -82,8 +82,8 @@ Return as a JSON array of strings.
         insights: list[Insight],
     ) -> str:
         """Generate an executive summary."""
-        findings_summary = "\n".join(f"- {f.claim}" for f in findings[:5])
-        insights_summary = "\n".join(f"- {i.insight}" for i in insights[:5])
+        findings_summary = "\n".join(f"- {finding.claim}" for finding in findings[:5])
+        insights_summary = "\n".join(f"- {insight.insight}" for insight in insights[:5])
 
         user_message = (
             f"Research Query: {research_query}\n"
@@ -106,8 +106,8 @@ Return as a JSON array of strings.
         insights: list[Insight],
     ) -> list[str]:
         """Generate actionable recommendations."""
-        findings_summary = "\n".join(f"- {f.claim}" for f in findings[:5])
-        insights_summary = "\n".join(f"- {i.insight}" for i in insights[:5])
+        findings_summary = "\n".join(f"- {finding.claim}" for finding in findings[:5])
+        insights_summary = "\n".join(f"- {insight.insight}" for insight in insights[:5])
 
         user_message = (
             f"Research Query: {research_query}\n"

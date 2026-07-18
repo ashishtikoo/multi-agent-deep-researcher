@@ -84,12 +84,12 @@ class ResearchReport(BaseModel):
 
         if self.findings:
             md += "## Key Findings\n\n"
-            for i, f in enumerate(self.findings, 1):
-                md += f"### Finding {i}: {f.claim}\n\n"
-                md += f"- **Confidence:** {f.confidence:.0%}\n"
-                md += f"- **Sources:** {', '.join(f.supporting_sources)}\n"
-                if f.contradictions:
-                    md += f"- **Contradictions:** {len(f.contradictions)} noted\n"
+            for i, finding in enumerate(self.findings, 1):
+                md += f"### Finding {i}: {finding.claim}\n\n"
+                md += f"- **Confidence:** {finding.confidence:.0%}\n"
+                md += f"- **Sources:** {', '.join(finding.supporting_sources)}\n"
+                if finding.contradictions:
+                    md += f"- **Contradictions:** {len(finding.contradictions)} noted\n"
                 md += "\n"
 
         if self.insights:
@@ -118,8 +118,8 @@ class ResearchReport(BaseModel):
 
         if self.sources:
             md += "## References\n\n"
-            for i, s in enumerate(self.sources, 1):
-                md += f"{i}. **{s.title}** — [{s.url}]({s.url})\n"
+            for i, source in enumerate(self.sources, 1):
+                md += f"{i}. **{source.title}** — [{source.url}]({source.url})\n"
             md += "\n"
 
         return md

@@ -138,10 +138,10 @@ Return as a JSON array with source index and scores.
     ) -> list[Contradiction]:
         """Identify contradictions between findings."""
         findings_text = "\n".join(
-            f"Finding {i+1}: {f.claim}\n"
-            f"  Sources: {', '.join(f.supporting_sources)}\n"
-            f"  Confidence: {f.confidence:.0%}\n"
-            for i, f in enumerate(findings)
+            f"Finding {i+1}: {finding.claim}\n"
+            f"  Sources: {', '.join(finding.supporting_sources)}\n"
+            f"  Confidence: {finding.confidence:.0%}\n"
+            for i, finding in enumerate(findings)
         )
 
         user_message = f"Findings:\n{findings_text}"

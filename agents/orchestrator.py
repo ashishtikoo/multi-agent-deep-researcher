@@ -191,8 +191,8 @@ class ResearchOrchestrator:
 
         if report.findings:
             console.print("[bold]Key Findings[/bold]")
-            for i, f in enumerate(report.findings, 1):
-                console.print(f"  {i}. {f.claim} [dim](confidence: {f.confidence:.0%})[/dim]")
+            for i, finding in enumerate(report.findings, 1):
+                console.print(f"  {i}. {finding.claim} [dim](confidence: {finding.confidence:.0%})[/dim]")
             console.print()
 
         if report.insights:
