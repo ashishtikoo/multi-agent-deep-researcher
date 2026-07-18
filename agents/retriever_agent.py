@@ -4,7 +4,7 @@ Contextual Retriever Agent – Pulls data from research papers, news, reports, a
 
 import json
 from typing import Optional
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from utils.llm import create_llm
 from utils.search import web_search, academic_search, search_all_sources
 from config import settings
@@ -45,12 +45,11 @@ Generate up to 5 queries.
         """Generate targeted search queries for the research topic."""
         user_message = f"Research query: {research_query}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         content = response.content.strip()
 
         # Parse JSON response
@@ -111,12 +110,11 @@ Generate up to 5 queries.
 
         user_message = f"Sources:\n{sources_text}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "Extract up to 3 key research topics from these sources. Return as a JSON array of strings."),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content="Extract up to 3 key research topics from these sources. Return as a JSON array of strings."),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         content = response.content.strip()
         try:
             if "```" in content:

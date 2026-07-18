@@ -5,7 +5,7 @@ and validates sources.
 
 import json
 from typing import Optional
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from utils.llm import create_llm
 from config import settings
 from models import Source, Finding, Contradiction
@@ -83,20 +83,19 @@ Return as a JSON array with source index and scores.
     def extract_findings(self, sources: list[Source], research_query: str) -> list[Finding]:
         """Extract structured findings from retrieved sources."""
         sources_text = "\n".join(
-            f"[{i+1}] {s.title} ({s.source_type.value})\n"
-            f"    URL: {s.url}\n"
-            f"    Snippet: {s.snippet[:500]}\n"
-            for i, s in enumerate(sources)
+            f"[{i+1}] {source.title} ({source.source_type.value})\n"
+            f"    URL: {source.url}\n"
+            f"    Snippet: {source.snippet[:500]}\n"
+            for i, source in enumerate(sources)
         )
 
         user_message = f"Sources:\n{sources_text}\n\nResearch Query: {research_query}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.FINDINGS_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.FINDINGS_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         content = response.content.strip()
 
         # Parse JSON
@@ -112,12 +111,12 @@ Return as a JSON array with source index and scores.
             # Fallback: create basic findings from sources
             findings_data = [
                 {
-                    "claim": s.snippet[:300],
-                    "supporting_sources": [s.title],
+                    "claim": source.snippet[:300],
+                    "supporting_sources": [source.title],
                     "confidence": 0.5,
                     "contradictions": [],
                 }
-                for s in sources[:5]
+                for source in sources[:5]
             ]
 
         findings = []
@@ -146,12 +145,11 @@ Return as a JSON array with source index and scores.
 
         user_message = f"Findings:\n{findings_text}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.CONTRADICTION_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.CONTRADICTION_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         content = response.content.strip()
 
         try:
@@ -180,20 +178,19 @@ Return as a JSON array with source index and scores.
     def validate_sources(self, sources: list[Source]) -> dict:
         """Validate and score source credibility."""
         sources_text = "\n".join(
-            f"[{i+1}] {s.title} ({s.source_type.value})\n"
-            f"    URL: {s.url}\n"
-            f"    Snippet: {s.snippet[:300]}\n"
-            for i, s in enumerate(sources)
+            f"[{i+1}] {source.title} ({source.source_type.value})\n"
+            f"    URL: {source.url}\n"
+            f"    Snippet: {source.snippet[:300]}\n"
+            for i, source in enumerate(sources)
         )
 
         user_message = f"Sources:\n{sources_text}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.VALIDATION_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.VALIDATION_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         return json.loads(response.content) if response.content else {}
 
     def analyze(self, sources: list[Source], research_query: str) -> dict:

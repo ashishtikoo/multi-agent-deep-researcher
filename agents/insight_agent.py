@@ -4,7 +4,7 @@ Insight Generation Agent – Suggests hypotheses or trends using reasoning chain
 
 import json
 from typing import Optional
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from utils.llm import create_llm
 from config import settings
 from models import Finding, Insight, Contradiction, Source
@@ -109,7 +109,7 @@ Return your response as a JSON object:
         )
 
         sources_text = "\n".join(
-            f"- {s.title} ({s.source_type.value})" for s in sources[:10]
+            f"- {source.title} ({source.source_type.value})" for source in sources[:10]
         )
 
         user_message = (
@@ -119,12 +119,11 @@ Return your response as a JSON object:
             f"Sources:\n{sources_text}"
         )
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.INSIGHT_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.INSIGHT_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         content = response.content.strip()
 
         try:
@@ -163,12 +162,11 @@ Return your response as a JSON object:
 
         user_message = f"Findings:\n{findings_text}\n\nContradictions:\n{contradictions_text}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.HYPOTHESIS_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.HYPOTHESIS_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
 
         try:
             content = response.content.strip()
@@ -185,16 +183,15 @@ Return your response as a JSON object:
     ) -> list[dict]:
         """Identify emerging trends from findings."""
         findings_text = "\n".join(f"- {finding.claim}" for finding in findings)
-        sources_text = "\n".join(f"- {s.title} ({s.source_type.value})" for s in sources)
+        sources_text = "\n".join(f"- {source.title} ({source.source_type.value})" for source in sources)
 
         user_message = f"Findings:\n{findings_text}\n\nSources:\n{sources_text}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.TREND_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.TREND_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
 
         try:
             content = response.content.strip()

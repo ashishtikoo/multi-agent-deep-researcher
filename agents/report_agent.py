@@ -4,7 +4,7 @@ Report Builder Agent – Compiles all insights into a structured report.
 
 import json
 from typing import Optional
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from utils.llm import create_llm
 from config import settings
 from models import (
@@ -67,12 +67,11 @@ Return as a JSON array of strings.
         key_finding = findings[0].claim if findings else "N/A"
         user_message = f"Research: {research_query}\nKey Finding: {key_finding}"
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "Generate a concise, professional report title for this research. Return only the title, nothing else."),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content="Generate a concise, professional report title for this research. Return only the title, nothing else."),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         return response.content.strip().strip('"').strip("'")
 
     def generate_executive_summary(
@@ -91,12 +90,11 @@ Return as a JSON array of strings.
             f"Key Insights:\n{insights_summary}"
         )
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.SUMMARY_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.SUMMARY_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
         return response.content.strip()
 
     def generate_recommendations(
@@ -115,12 +113,11 @@ Return as a JSON array of strings.
             f"Key Insights:\n{insights_summary}"
         )
 
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self.RECOMMENDATIONS_SYSTEM_PROMPT),
-            ("human", user_message),
-        ])
-        chain = prompt | self.llm
-        response = chain.invoke({})
+        messages = [
+            SystemMessage(content=self.RECOMMENDATIONS_SYSTEM_PROMPT),
+            HumanMessage(content=user_message),
+        ]
+        response = self.llm.invoke(messages)
 
         try:
             content = response.content.strip()
