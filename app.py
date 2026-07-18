@@ -64,18 +64,18 @@ st.markdown("""
 
 /* ─── Sidebar ─── */
 [data-testid="stSidebar"] {
-    background: rgba(15, 20, 40, 0.95) !important;
-    border-right: 1px solid rgba(100, 200, 255, 0.2) !important;
+    background: rgba(240, 248, 220, 0.95) !important;
+    border-right: 1px solid rgba(100, 180, 80, 0.3) !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown {
-    color: #ffffff !important;
+    color: #2d3a1a !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown h1,
 [data-testid="stSidebar"] .stMarkdown h2,
 [data-testid="stSidebar"] .stMarkdown h3 {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown p,
@@ -84,7 +84,7 @@ st.markdown("""
 [data-testid="stSidebar"] .stMarkdown span,
 [data-testid="stSidebar"] .stMarkdown div,
 [data-testid="stSidebar"] .stMarkdown a {
-    color: #e0e8f0 !important;
+    color: #3d4a2a !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown hr {
@@ -93,12 +93,12 @@ st.markdown("""
 
 /* ─── Sidebar Title Fix ─── */
 [data-testid="stSidebar"] .stMarkdown h1 {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
     font-size: 1.5rem !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown h1 > span {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown h1 > img,
@@ -108,39 +108,39 @@ st.markdown("""
 
 /* ─── Sidebar Title (st.title) ─── */
 [data-testid="stSidebar"] .stTitle {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 [data-testid="stSidebar"] .stTitle > span {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 /* ─── Sidebar Title - Override All ─── */
 [data-testid="stSidebar"] .stTitle h1,
 [data-testid="stSidebar"] .stTitle h2,
 [data-testid="stSidebar"] .stTitle h3 {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 [data-testid="stSidebar"] .stTitle strong,
 [data-testid="stSidebar"] .stTitle span,
 [data-testid="stSidebar"] .stTitle p {
-    color: #ffffff !important;
+    color: #1a2a0a !important;
 }
 
 /* ─── Sidebar All Text ─── */
 [data-testid="stSidebar"] * {
-    color: #ffffff !important;
+    color: #2d3a1a !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown * {
-    color: #ffffff !important;
+    color: #2d3a1a !important;
 }
 
 [data-testid="stSidebar"] .stSelectbox > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div > div {
-    color: #ffffff !important;
+    color: #2d3a1a !important;
 }
 
 [data-testid="stSidebar"] .stCheckbox > label > div > div {
