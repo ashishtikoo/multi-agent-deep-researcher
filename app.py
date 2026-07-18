@@ -282,6 +282,61 @@ p {
     color: #000000 !important;
 }
 
+.stSelectbox > div > div > div {
+    color: #000000 !important;
+}
+
+.stSelectbox > div > div > div > div {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Help Icon ─── */
+.stSelectbox > div > div > span {
+    color: #000000 !important;
+}
+
+.stSelectbox > div > div > span > div {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Tooltip ─── */
+.stSelectbox > div > div > span > span {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Tooltip Icon (?) ─── */
+.stSelectbox > div > div > span > span > span,
+.stSelectbox > div > div > span > span > span > span {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Help Tooltip ─── */
+[data-testid="stTooltipHoverText"] {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Help Icon Circle ─── */
+.stSelectbox > div > div > span > span > span > span > span {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Help Icon - Aggressive Fix ─── */
+.stSelectbox > div > div > span > span > span > span > span > span,
+.stSelectbox > div > div > span > span > span > span > span > span > span,
+.stSelectbox > div > div > span > span > span > span > span > span > span > span {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox All Children ─── */
+.stSelectbox > div > div > span * {
+    color: #000000 !important;
+}
+
+/* ─── Selectbox Label ─── */
+.stSelectbox > label > div > div {
+    color: #000000 !important;
+}
+
 /* ─── Tabs ─── */
 .stTabs [data-baseweb="tab-list"] {
     gap: 8px;
