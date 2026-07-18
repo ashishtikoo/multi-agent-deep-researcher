@@ -5,6 +5,7 @@ Multi-Agent AI Deep Researcher – Streamlit Web Application
 import streamlit as st
 import os
 import sys
+import hashlib
 from datetime import datetime
 
 # Add project root to path
@@ -80,12 +81,20 @@ st.markdown(
     "a deep, multi-source investigation and compile a comprehensive report."
 )
 
+# Initialize session state for query
+if "query" not in st.session_state:
+    st.session_state["query"] = ""
+
 # ─── Input Section ─────────────────────────────────────────────
 query = st.text_area(
     "📋 Research Question / Topic",
+    value=st.session_state["query"],
     placeholder="e.g., 'What are the latest advances in quantum computing and their implications for cryptography?'",
     height=100,
 )
+
+# Update session state when user types
+st.session_state["query"] = query
 
 col1, col2 = st.columns([1, 5])
 with col1:
@@ -289,15 +298,27 @@ elif run_button and not query.strip():
 st.markdown("---")
 st.markdown("### 💡 Example Research Topics")
 
-examples = [
+# Rotate examples based on current minute (no API calls needed)
+all_examples = [
     "What are the latest advances in quantum computing and their implications for cryptography?",
     "How effective are carbon capture technologies in mitigating climate change?",
     "What is the impact of remote work on urban real estate markets post-pandemic?",
     "What are the ethical implications of AI-generated deepfakes in democratic processes?",
     "How is CRISPR technology advancing the treatment of genetic diseases?",
+    "What role does blockchain play in supply chain transparency?",
+    "How are autonomous vehicles changing urban transportation?",
+    "What are the environmental impacts of data centers?",
+    "How is AI transforming drug discovery and development?",
+    "What are the security challenges of IoT devices?",
 ]
 
-for example in examples:
+# Use current minute to rotate examples
+minute_hash = int(hashlib.md5(str(datetime.now().minute).encode()).hexdigest(), 16)
+start_idx = minute_hash % len(all_examples)
+rotated_examples = all_examples[start_idx:] + all_examples[:start_idx]
+
+# Show 5 rotating examples
+for example in rotated_examples[:5]:
     if st.button(example, key=example[:30], use_container_width=True):
-        query = example
+        st.session_state["query"] = example
         st.rerun()
