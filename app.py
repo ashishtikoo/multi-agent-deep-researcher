@@ -115,6 +115,28 @@ st.markdown("""
     color: #ffffff !important;
 }
 
+/* ─── Sidebar Title - Override All ─── */
+[data-testid="stSidebar"] .stTitle h1,
+[data-testid="stSidebar"] .stTitle h2,
+[data-testid="stSidebar"] .stTitle h3 {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stTitle strong,
+[data-testid="stSidebar"] .stTitle span,
+[data-testid="stSidebar"] .stTitle p {
+    color: #ffffff !important;
+}
+
+/* ─── Sidebar All Text ─── */
+[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown * {
+    color: #ffffff !important;
+}
+
 [data-testid="stSidebar"] .stSelectbox > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div,
 [data-testid="stSidebar"] .stSelectbox > div > div > div > div > div {
@@ -127,6 +149,11 @@ st.markdown("""
 
 /* ─── Main Content ─── */
 .main {
+    color: #ffffff !important;
+}
+
+/* ─── Main Content - Override All Text ─── */
+.main * {
     color: #ffffff !important;
 }
 
@@ -147,6 +174,40 @@ st.markdown("""
 .main .stMarkdown strong,
 .main .stMarkdown em,
 .main .stMarkdown a {
+    color: #e0e8f0 !important;
+}
+
+/* ─── Main Page Title ─── */
+.main > div > div:nth-child(1) > div:nth-child(1) > h1 {
+    color: #ffffff !important;
+}
+
+.main > div > div:nth-child(1) > div:nth-child(1) > h1 > span {
+    color: #ffffff !important;
+}
+
+/* ─── Main Page Paragraph ─── */
+.main > div > div:nth-child(1) > div:nth-child(1) > p {
+    color: #e0e8f0 !important;
+}
+
+/* ─── Main Page Section Headers ─── */
+.main > div > div:nth-child(1) > div:nth-child(1) > h2 {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for st.text_area label ─── */
+.stTextInput > label > div > div {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for all headings ─── */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for all paragraphs ─── */
+p {
     color: #e0e8f0 !important;
 }
 
