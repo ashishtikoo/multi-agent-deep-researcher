@@ -39,6 +39,30 @@ with st.sidebar:
     )
 
     st.markdown("---")
+    st.markdown("### Developer Options")
+
+    run_on_save = st.checkbox(
+        "Run on Save",
+        value=False,
+        help="Automatically restart the app when files are saved (useful during development)",
+    )
+
+    if run_on_save:
+        # Create .streamlit/config.toml to enable runOnSave
+        import os
+        config_dir = os.path.join(os.path.dirname(__file__), ".streamlit")
+        os.makedirs(config_dir, exist_ok=True)
+        config_path = os.path.join(config_dir, "config.toml")
+        with open(config_path, "w") as f:
+            f.write("[server]\nrunOnSave = true\n")
+        st.info("✅ Run on Save enabled — app will restart on file saves.")
+    else:
+        # Remove the config file if it exists
+        config_path = os.path.join(os.path.dirname(__file__), ".streamlit", "config.toml")
+        if os.path.exists(config_path):
+            os.remove(config_path)
+
+    st.markdown("---")
     st.markdown("### About")
     st.markdown("""
     **Multi-Agent AI Deep Researcher**
