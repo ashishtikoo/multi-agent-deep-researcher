@@ -257,20 +257,29 @@ p {
 
 /* ─── Text Input ─── */
 .stTextInput > div > div > input {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: #ffffff !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 500 !important;
 }
 
 .stTextInput > div > div > input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ─── Text Area ─── */
+.stTextArea > div > div > textarea {
+    background: #ffffff !important;
+    border: 1px solid rgba(100, 200, 255, 0.3) !important;
+    color: #000000 !important;
+    font-weight: 500 !important;
 }
 
 /* ─── Selectbox ─── */
 .stSelectbox > div > div {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: #ffffff !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 /* ─── Tabs ─── */
