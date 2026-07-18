@@ -506,7 +506,7 @@ with st.sidebar:
 
     llm_model = st.selectbox(
         "LLM Model",
-        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "google/gemini-2.0-flash"],
+        ["openai/gpt-4o", "openai/gpt-4o-mini", "anthropic/claude-3.1-sonnet", "google/gemini-2.0-flash"],
         index=0,
         help="Models available via OpenRouter (cheaper than direct API access)",
     )
