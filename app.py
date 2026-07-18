@@ -800,9 +800,7 @@ query = st.text_area(
 # Update session state when user types
 st.session_state["query"] = query
 
-col1, col2 = st.columns([1, 5])
-with col1:
-    run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
+run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
 
 
 # ─── Helper: Display Report ────────────────────────────────────
