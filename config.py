@@ -26,10 +26,11 @@ class Settings(BaseSettings):
     report_max_pages: int = 20
     report_format: str = "markdown"
 
-    # Streamlit
-    streamlit_port: int = 8501
-
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",  # Ignore any extra env vars in .env
+    }
 
 
 settings = Settings()
