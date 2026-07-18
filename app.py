@@ -1,45 +1,108 @@
 """
+Multi-Agent AI Deep Researcher – Streamlit Web Application
+"""
+
+import streamlit as st
+import os
+import sys
+import hashlib
+from datetime import datetime
+import base64
+
+# Add project root to path
+sys.path.insert(0, os.path.dirname(__file__))
+
+from agents.orchestrator import ResearchOrchestrator
+from models import ResearchReport
+
+
+# ─── Load Background Image ─────────────────────────────────────
+def get_background_image():
+    """Load and encode the background image."""
+    bg_path = os.path.join(os.path.dirname(__file__), "assets", "background.jpeg")
+    if os.path.exists(bg_path):
+        with open(bg_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    return None
+
+
+bg_image = get_background_image()
+
+# ─── Page Config ───────────────────────────────────────────────
+st.set_page_config(
+    page_title="Multi-Agent AI Deep Researcher",
+    page_icon="🔬",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# ─── Global Styles ─────────────────────────────────────────────
+if bg_image:
+    bg_css = f"""
+[data-testid="stAppViewContainer"] {{
+    background-image: url("data:image/jpeg;base64,{bg_image}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}}
+"""
+else:
+    bg_css = """
+[data-testid="stAppViewContainer"] {
+    background: linear-gradient(135deg, #0a0f1e 0%, #1a2a4a 50%, #0a0f1e 100%);
+}
+"""
 
 st.markdown("""
 <style>
 /* ─── Background Image ─── */
 """ + bg_css + """
-
-/* ─── Main Container ─── */
 [data-testid="stAppViewContainer"] > .main {
     background: rgba(10, 15, 30, 0.85);
-    color: #ffffff !important;
 }
 
 /* ─── Sidebar ─── */
 [data-testid="stSidebar"] {
     background: rgba(15, 20, 40, 0.95) !important;
-    border-right: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
+    border-right: 1px solid rgba(100, 200, 255, 0.2) !important;
 }
 
-[data-testid="stSidebar"] * {
+[data-testid="stSidebar"] .stMarkdown {
     color: #ffffff !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown h1,
 [data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3,
+[data-testid="stSidebar"] .stMarkdown h3 {
+    color: #ffffff !important;
+}
+
 [data-testid="stSidebar"] .stMarkdown p,
 [data-testid="stSidebar"] .stMarkdown strong,
-[data-testid="stSidebar"] .stMarkdown a,
 [data-testid="stSidebar"] .stMarkdown li,
 [data-testid="stSidebar"] .stMarkdown span,
-[data-testid="stSidebar"] .stMarkdown div {
-    color: #ffffff !important;
+[data-testid="stSidebar"] .stMarkdown div,
+[data-testid="stSidebar"] .stMarkdown a {
+    color: #e0e8f0 !important;
 }
 
 [data-testid="stSidebar"] .stMarkdown hr {
     border-color: rgba(100, 200, 255, 0.3) !important;
 }
 
+[data-testid="stSidebar"] .stSelectbox > div > div > div,
+[data-testid="stSidebar"] .stSelectbox > div > div > div > div,
+[data-testid="stSidebar"] .stSelectbox > div > div > div > div > div {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stCheckbox > label > div > div {
+    color: #ffffff !important;
+}
+
 /* ─── Main Content ─── */
-.main * {
+.main {
     color: #ffffff !important;
 }
 
@@ -58,12 +121,36 @@ st.markdown("""
 .main .stMarkdown span,
 .main .stMarkdown div,
 .main .stMarkdown strong,
-.main .stMarkdown em {
-    color: #ffffff !important;
+.main .stMarkdown em,
+.main .stMarkdown a {
+    color: #e0e8f0 !important;
 }
 
 .main .stMarkdown a {
     color: #64c8ff !important;
+}
+
+/* ─── Fix for Streamlit's internal components ─── */
+.main > div > div:nth-child(2) > div > div > div > div > div > div,
+.main > div > div:nth-child(2) > div > div > div > div > div > div > div {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for selectbox dropdown ─── */
+.stSelectbox > div > div > div > div > div {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for text area ─── */
+.stTextArea > div > div > textarea {
+    color: #ffffff !important;
+}
+
+/* ─── Fix for chat history ─── */
+[data-testid="stContainer"] p,
+[data-testid="stContainer"] span,
+[data-testid="stContainer"] div {
+    color: #ffffff !important;
 }
 
 /* ─── Buttons ─── */
@@ -98,10 +185,6 @@ st.markdown("""
 .stSelectbox > div > div {
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
-}
-
-.stSelectbox > div > div > div {
     color: #ffffff !important;
 }
 
@@ -399,7 +482,6 @@ components.html("""
     padding: 8px 0;
     animation: fadeIn 0.2s;
     backdrop-filter: blur(10px);
-    color: #ffffff !important;
 }
 
 .dev-dropdown.show {
@@ -443,7 +525,7 @@ components.html("""
 
 .dev-menu-item .sublabel {
     font-size: 11px;
-    color: #cccccc !important;
+    color: #888 !important;
     margin-top: 2px;
 }
 
@@ -488,7 +570,7 @@ components.html("""
 <div class="dev-menu-container">
     <button class="dev-menu-btn" onclick="toggleDevMenu()">⋯</button>
     <div class="dev-dropdown" id="devDropdown">
-        <div style="padding: 12px 16px 8px; font-size: 12px; color: #cccccc; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Developer Options</div>
+        <div style="padding: 12px 16px 8px; font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Developer Options</div>
         
         <button class="dev-menu-item" onclick="toggleRunOnSave()">
             <span class="icon">🔄</span>
@@ -508,7 +590,7 @@ components.html("""
         
         <div class="dev-menu-divider"></div>
         
-        <div style="padding: 8px 16px; font-size: 11px; color: #cccccc; text-align: center;">v1.0.0</div>
+        <div style="padding: 8px 16px; font-size: 11px; color: #aaa; text-align: center;">v1.0.0</div>
     </div>
 </div>
 

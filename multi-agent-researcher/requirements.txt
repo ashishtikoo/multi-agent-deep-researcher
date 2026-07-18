@@ -1,0 +1,38 @@
+# Core orchestration
+langgraph>=0.2.0
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-core>=0.2.0
+
+# Free AI model clients
+# Ollama (local)
+# LM Studio (local) - uses OpenAI-compatible API
+# HuggingFace (free tier)
+
+# Retrieval (free)
+duckduckgo-search>=6.0.0
+
+# UI (Phase 6)
+streamlit>=1.32.0
+
+# API (Phase 5)
+fastapi>=0.109.0
+uvicorn>=0.27.0
+sse-starlette>=2.0.0
+
+# Data & config
+pydantic>=2.6.0
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# Report generation
+jinja2>=3.1.2
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+
+# Utilities
+rich>=13.7.0
+tqdm>=4.66.0
