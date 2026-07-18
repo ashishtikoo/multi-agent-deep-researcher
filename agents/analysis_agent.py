@@ -27,65 +27,54 @@ For each finding, provide:
 3. A confidence score (0.0 to 1.0) based on source quality and agreement
 4. Any contradictions with other sources
 
-Analyze the following sources and extract the most important findings:
+Extract the most important findings from the provided sources.
 
-Sources:
-{sources}
-
-Research Query: {research_query}
-
-Return a JSON object with this structure:
-{{
+Return your response as a JSON object with this structure:
+{
     "findings": [
-        {{
+        {
             "claim": "The finding/claim",
             "supporting_sources": ["source titles or URLs"],
             "confidence": 0.85,
             "contradictions": ["description of any contradictory claims"]
-        }}
+        }
     ]
-}}
+}
 
 Extract at least 3-5 key findings. Be thorough but concise.
 """
 
     CONTRADICTION_SYSTEM_PROMPT = """You are a critical analyst comparing conflicting information.
-Identify and analyze contradictions between the following findings.
-
-Findings:
-{findings}
+Identify and analyze contradictions between the provided findings.
 
 For each contradiction, provide:
 - The conflicting claims
 - Their respective sources
 - A suggested resolution or explanation
 
-Return as JSON:
-{{
+Return your response as a JSON object:
+{
     "contradictions": [
-        {{
+        {
             "claim_a": "First claim",
             "source_a": "Source of first claim",
             "claim_b": "Conflicting claim",
             "source_b": "Source of conflicting claim",
             "resolution": "Suggested resolution or explanation"
-        }}
+        }
     ]
-}}
+}
 """
 
     VALIDATION_SYSTEM_PROMPT = """You are a source validation expert. Assess the credibility
 of the following research sources.
-
-Sources:
-{sources}
 
 For each source, rate:
 - credibility: 0.0 to 1.0
 - recency: 0.0 to 1.0
 - relevance: 0.0 to 1.0
 
-Return as JSON array with source index and scores.
+Return as a JSON array with source index and scores.
 """
 
     def __init__(self, llm_model: Optional[str] = None):
@@ -100,15 +89,14 @@ Return as JSON array with source index and scores.
             for i, s in enumerate(sources)
         )
 
+        user_message = f"Sources:\n{sources_text}\n\nResearch Query: {research_query}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.FINDINGS_SYSTEM_PROMPT),
-            ("human", f"Sources:\n{sources_text}\n\nResearch Query: {research_query}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
-        response = chain.invoke({
-            "sources": sources_text,
-            "research_query": research_query,
-        })
+        response = chain.invoke({})
         content = response.content.strip()
 
         # Parse JSON
@@ -156,12 +144,14 @@ Return as JSON array with source index and scores.
             for i, f in enumerate(findings)
         )
 
+        user_message = f"Findings:\n{findings_text}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.CONTRADICTION_SYSTEM_PROMPT),
-            ("human", f"Findings:\n{findings_text}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
-        response = chain.invoke({"findings": findings_text})
+        response = chain.invoke({})
         content = response.content.strip()
 
         try:
@@ -196,12 +186,14 @@ Return as JSON array with source index and scores.
             for i, s in enumerate(sources)
         )
 
+        user_message = f"Sources:\n{sources_text}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.VALIDATION_SYSTEM_PROMPT),
-            ("human", f"Sources:\n{sources_text}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
-        response = chain.invoke({"sources": sources_text})
+        response = chain.invoke({})
         return json.loads(response.content) if response.content else {}
 
     def analyze(self, sources: list[Source], research_query: str) -> dict:

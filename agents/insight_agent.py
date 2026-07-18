@@ -29,29 +29,18 @@ Given the research findings, contradictions, and sources, generate insights by:
 
 Each insight must include a clear reasoning chain showing how you arrived at it.
 
-Research Query: {research_query}
-
-Findings:
-{findings}
-
-Contradictions:
-{contradictions}
-
-Sources:
-{sources}
-
-Return a JSON object:
-{{
+Return your response as a JSON object with the following structure:
+{
     "insights": [
-        {{
+        {
             "insight": "The insight statement",
             "reasoning_chain": ["Step 1", "Step 2", "Step 3", "Conclusion"],
             "supporting_findings": ["finding descriptions"],
             "confidence": 0.8,
             "category": "trend|hypothesis|implication|pattern|emerging_theme"
-        }}
+        }
     ]
-}}
+}
 
 Generate 3-5 high-quality insights. Prioritize depth over quantity.
 """
@@ -60,51 +49,39 @@ Generate 3-5 high-quality insights. Prioritize depth over quantity.
 Based on the research findings, propose testable hypotheses that explain
 the observed patterns or contradictions.
 
-Findings:
-{findings}
-
-Contradictions:
-{contradictions}
-
 For each hypothesis, provide:
 - A clear hypothesis statement
 - The evidence supporting it
 - Suggested tests or experiments to validate it
 - Confidence level
 
-Return as JSON:
-{{
+Return your response as a JSON object:
+{
     "hypotheses": [
-        {{
+        {
             "hypothesis": "Statement",
             "evidence": ["Evidence point 1", "Evidence point 2"],
             "tests": ["Test 1", "Test 2"],
             "confidence": 0.7
-        }}
+        }
     ]
-}}
+}
 """
 
     TREND_SYSTEM_PROMPT = """You are a trend analyst. Identify emerging trends
 and shifts based on the research findings.
 
-Findings:
-{findings}
-
-Sources:
-{sources}
-
-Return as JSON:
-{{
+Return your response as a JSON object:
+{
     "trends": [
-        {{
+        {
             "trend": "Trend description",
             "evidence": ["Supporting evidence"],
             "direction": "increasing|decreasing|emerging|declining",
             "confidence": 0.8
-        }}
+        }
     ]
-}}
+}
 """
 
     def __init__(self, llm_model: Optional[str] = None):
@@ -135,13 +112,16 @@ Return as JSON:
             f"- {s.title} ({s.source_type.value})" for s in sources[:10]
         )
 
+        user_message = (
+            f"Research Query: {research_query}\n\n"
+            f"Findings:\n{findings_text}\n\n"
+            f"Contradictions:\n{contradictions_text}\n\n"
+            f"Sources:\n{sources_text}"
+        )
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.INSIGHT_SYSTEM_PROMPT),
-            ("human",
-             f"Research Query: {research_query}\n\n"
-             f"Findings:\n{findings_text}\n\n"
-             f"Contradictions:\n{contradictions_text}\n\n"
-             f"Sources:\n{sources_text}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})
@@ -181,9 +161,11 @@ Return as JSON:
             f"- {c.claim_a} vs {c.claim_b}" for c in contradictions
         )
 
+        user_message = f"Findings:\n{findings_text}\n\nContradictions:\n{contradictions_text}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.HYPOTHESIS_SYSTEM_PROMPT),
-            ("human", f"Findings:\n{findings_text}\n\nContradictions:\n{contradictions_text}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})
@@ -205,9 +187,11 @@ Return as JSON:
         findings_text = "\n".join(f"- {f.claim}" for f in findings)
         sources_text = "\n".join(f"- {s.title} ({s.source_type.value})" for s in sources)
 
+        user_message = f"Findings:\n{findings_text}\n\nSources:\n{sources_text}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.TREND_SYSTEM_PROMPT),
-            ("human", f"Findings:\n{findings_text}\n\nSources:\n{sources_text}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})

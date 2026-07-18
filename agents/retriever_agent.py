@@ -21,19 +21,20 @@ class RetrieverAgent:
 Your job is to identify the best search queries to find relevant, high-quality sources
 for a given research topic.
 
-Given a research query, generate up to {max_queries} targeted search queries that would
-yield the most comprehensive and diverse results across different source types
-(academic papers, news articles, industry reports, and general web sources).
+Generate targeted search queries that would yield the most comprehensive and diverse
+results across different source types (academic papers, news articles, industry reports,
+and general web sources).
 
 Return your response as a JSON object with the following structure:
-{{
+{
     "queries": [
-        {{"query": "specific search query", "source_type": "web|academic|news|reports"}},
+        {"query": "specific search query", "source_type": "web|academic|news|reports"},
         ...
     ]
-}}
+}
 
 Be specific and creative with your queries. Consider different angles and perspectives.
+Generate up to 5 queries.
 """
 
     def __init__(self, llm_model: Optional[str] = None):
@@ -42,15 +43,14 @@ Be specific and creative with your queries. Consider different angles and perspe
 
     def generate_search_queries(self, research_query: str) -> list[dict]:
         """Generate targeted search queries for the research topic."""
+        user_message = f"Research query: {research_query}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.SYSTEM_PROMPT),
-            ("human", "Research query: {research_query}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
-        response = chain.invoke({
-            "research_query": research_query,
-            "max_queries": self.max_queries,
-        })
+        response = chain.invoke({})
         content = response.content.strip()
 
         # Parse JSON response
@@ -78,10 +78,8 @@ Be specific and creative with your queries. Consider different angles and perspe
         all_sources: list[Source] = []
         seen_urls = set()
 
-        # Generate search queries
         queries = self.generate_search_queries(research_query)
 
-        # Execute searches
         for query_info in queries:
             query = query_info["query"]
             source_type = query_info.get("source_type", "web")
@@ -96,7 +94,6 @@ Be specific and creative with your queries. Consider different angles and perspe
                     seen_urls.add(source.url)
                     all_sources.append(source)
 
-        # Multi-hop: expand with follow-up queries on key topics found
         if max_hops > 1 and len(all_sources) > 0:
             key_topics = self._extract_key_topics(all_sources[:5])
             for topic in key_topics[:2]:
@@ -110,9 +107,13 @@ Be specific and creative with your queries. Consider different angles and perspe
 
     def _extract_key_topics(self, sources: list[Source]) -> list[str]:
         """Extract key topics from retrieved sources for follow-up queries."""
+        sources_text = "\n".join(f"- {s.title}: {s.snippet[:200]}" for s in sources)
+
+        user_message = f"Sources:\n{sources_text}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", "Extract up to 3 key research topics from these sources. Return as a JSON array of strings."),
-            ("human", "Sources:\n" + "\n".join(f"- {s.title}: {s.snippet[:200]}" for s in sources)),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})

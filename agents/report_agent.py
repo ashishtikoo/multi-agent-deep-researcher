@@ -39,8 +39,6 @@ The report should include:
 
 Make the report professional, clear, and actionable.
 Use markdown formatting.
-
-Research Query: {research_query}
 """
 
     SUMMARY_SYSTEM_PROMPT = """You are a research summarizer. Write a concise
@@ -52,21 +50,13 @@ Include:
 - Main insights
 - Notable contradictions
 - Overall conclusions
-
-Research Query: {research_query}
-Key Findings: {findings_summary}
-Key Insights: {insights_summary}
 """
 
     RECOMMENDATIONS_SYSTEM_PROMPT = """You are a strategic advisor. Based on
 the research findings and insights, provide actionable recommendations.
 
-Research Query: {research_query}
-Key Findings: {findings_summary}
-Key Insights: {insights_summary}
-
 Provide 5-8 specific, actionable recommendations.
-Return as JSON array of strings.
+Return as a JSON array of strings.
 """
 
     def __init__(self, llm_model: Optional[str] = None):
@@ -74,15 +64,15 @@ Return as JSON array of strings.
 
     def generate_title(self, research_query: str, findings: list[Finding]) -> str:
         """Generate a compelling report title."""
+        key_finding = findings[0].claim if findings else "N/A"
+        user_message = f"Research: {research_query}\nKey Finding: {key_finding}"
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", "Generate a concise, professional report title for this research. Return only the title, nothing else."),
-            ("human", "Research: {research_query}\nKey Finding: {key_finding}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
-        response = chain.invoke({
-            "research_query": research_query,
-            "key_finding": findings[0].claim if findings else "N/A",
-        })
+        response = chain.invoke({})
         return response.content.strip().strip('"').strip("'")
 
     def generate_executive_summary(
@@ -95,12 +85,15 @@ Return as JSON array of strings.
         findings_summary = "\n".join(f"- {f.claim}" for f in findings[:5])
         insights_summary = "\n".join(f"- {i.insight}" for i in insights[:5])
 
+        user_message = (
+            f"Research Query: {research_query}\n"
+            f"Key Findings:\n{findings_summary}\n"
+            f"Key Insights:\n{insights_summary}"
+        )
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.SUMMARY_SYSTEM_PROMPT),
-            ("human",
-             f"Research Query: {research_query}\n"
-             f"Key Findings:\n{findings_summary}\n"
-             f"Key Insights:\n{insights_summary}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})
@@ -116,12 +109,15 @@ Return as JSON array of strings.
         findings_summary = "\n".join(f"- {f.claim}" for f in findings[:5])
         insights_summary = "\n".join(f"- {i.insight}" for i in insights[:5])
 
+        user_message = (
+            f"Research Query: {research_query}\n"
+            f"Key Findings:\n{findings_summary}\n"
+            f"Key Insights:\n{insights_summary}"
+        )
+
         prompt = ChatPromptTemplate.from_messages([
             ("system", self.RECOMMENDATIONS_SYSTEM_PROMPT),
-            ("human",
-             f"Research Query: {research_query}\n"
-             f"Key Findings:\n{findings_summary}\n"
-             f"Key Insights:\n{insights_summary}"),
+            ("human", user_message),
         ])
         chain = prompt | self.llm
         response = chain.invoke({})
