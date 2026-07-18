@@ -7,7 +7,6 @@ import os
 import sys
 import hashlib
 from datetime import datetime
-import base64
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -15,18 +14,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from agents.orchestrator import ResearchOrchestrator
 from models import ResearchReport
 
-
-# ─── Load Background Image ─────────────────────────────────────
-def get_background_image():
-    """Load and encode the background image."""
-    bg_path = os.path.join(os.path.dirname(__file__), "assets", "background.jpeg")
-    if os.path.exists(bg_path):
-        with open(bg_path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    return None
-
-
-bg_image = get_background_image()
 
 # ─── Page Config ───────────────────────────────────────────────
 st.set_page_config(
@@ -36,257 +23,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─── Global Styles ─────────────────────────────────────────────
-if bg_image:
-    bg_css = f"""
-[data-testid="stAppViewContainer"] {{
-    background-image: url("data:image/jpeg;base64,{bg_image}");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-}}
-"""
-else:
-    bg_css = """
-[data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #0a0f1e 0%, #1a2a4a 50%, #0a0f1e 100%);
-}
-"""
-
-st.markdown("""
-<style>
-/* ─── Background Image ─── */
-""" + bg_css + """
-
-[data-testid="stAppViewContainer"] > .main {
-    background: rgba(10, 15, 30, 0.85);
-}
-
-/* ─── Sidebar ─── */
-[data-testid="stSidebar"] {
-    background: rgba(15, 20, 40, 0.95);
-    border-right: 1px solid rgba(100, 200, 255, 0.2);
-}
-
-[data-testid="stSidebar"] .stMarkdown h1,
-[data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3,
-[data-testid="stSidebar"] .stMarkdown p,
-[data-testid="stSidebar"] .stMarkdown strong {
-    color: #e0f0ff !important;
-}
-
-[data-testid="stSidebar"] .stMarkdown hr {
-    border-color: rgba(100, 200, 255, 0.3) !important;
-}
-
-/* ─── Main Content ─── */
-.main .stMarkdown h1,
-.main .stMarkdown h2,
-.main .stMarkdown h3,
-.main .stMarkdown h4 {
-    color: #ffffff !important;
-    text-shadow: 0 2px 10px rgba(0, 150, 255, 0.5);
-}
-
-.main .stMarkdown p,
-.main .stMarkdown li {
-    color: #e0e8f0 !important;
-}
-
-.main .stMarkdown a {
-    color: #64c8ff !important;
-}
-
-/* ─── Buttons ─── */
-.stButton > button {
-    background: linear-gradient(135deg, #0066cc, #0099ff);
-    color: white !important;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.stButton > button:hover {
-    background: linear-gradient(135deg, #0088ff, #00bbff);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.4);
-}
-
-/* ─── Text Input ─── */
-.stTextInput > div > div > input {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
-}
-
-.stTextInput > div > div > input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-}
-
-/* ─── Selectbox ─── */
-.stSelectbox > div > div {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #ffffff !important;
-}
-
-/* ─── Tabs ─── */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 8px;
-}
-
-.stTabs [data-baseweb="tab"] {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    border-radius: 8px 8px 0 0 !important;
-    color: #e0e8f0 !important;
-}
-
-.stTabs [data-baseweb="tab"][aria-selected="true"] {
-    background: rgba(0, 150, 255, 0.3) !important;
-    border-bottom-color: rgba(0, 150, 255, 0.3) !important;
-    color: #ffffff !important;
-}
-
-/* ─── Expander ─── */
-.streamlit-expanderHeader {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.2) !important;
-    color: #e0e8f0 !important;
-}
-
-.streamlit-expanderHeader:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-}
-
-/* ─── Progress Bar ─── */
-.stProgress > div > div {
-    background: rgba(255, 255, 255, 0.2) !important;
-}
-
-.stProgress > div > div > div {
-    background: linear-gradient(90deg, #0066cc, #00ccff) !important;
-}
-
-/* ─── Spinner ─── */
-.stSpinner > div {
-    border-top-color: #0099ff !important;
-    border-right-color: #0099ff !important;
-}
-
-/* ─── Info/Success/Warning/Error Boxes ─── */
-.stAlert {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #e0e8f0 !important;
-}
-
-/* ─── Download Buttons ─── */
-.stDownloadButton > button {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    color: #e0e8f0 !important;
-}
-
-.stDownloadButton > button:hover {
-    background: rgba(0, 150, 255, 0.3) !important;
-    border-color: rgba(0, 150, 255, 0.5) !important;
-}
-
-/* ─── Chat History ─── */
-[data-testid="stContainer"] {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border: 1px solid rgba(100, 200, 255, 0.2) !important;
-    border-radius: 8px !important;
-    padding: 12px !important;
-    margin-bottom: 8px !important;
-}
-
-/* ─── Example Research Topics ─── */
-.stHorizontalBlock > div {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border: 1px solid rgba(100, 200, 255, 0.2) !important;
-    border-radius: 8px !important;
-    color: #e0e8f0 !important;
-    font-size: 12px !important;
-    padding: 8px 12px !important;
-}
-
-.stHorizontalBlock > div:hover {
-    background: rgba(0, 150, 255, 0.2) !important;
-    border-color: rgba(0, 150, 255, 0.4) !important;
-}
-
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(0, 150, 255, 0.3);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 150, 255, 0.5);
-}
-
-/* ─── Developer Menu ─── */
-.dev-menu-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.dev-menu-btn {
-    background: rgba(0, 150, 255, 0.2) !important;
-    border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #e0f0ff !important;
-    backdrop-filter: blur(10px);
-}
-
-.dev-menu-btn:hover {
-    background: rgba(0, 150, 255, 0.4) !important;
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
-}
-
-.dev-dropdown {
-    background: rgba(15, 20, 40, 0.95) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
-    backdrop-filter: blur(10px);
-}
-
-.dev-menu-item {
-    color: #e0e8f0 !important;
-}
-
-.dev-menu-item:hover {
-    background: rgba(0, 150, 255, 0.2) !important;
-}
-
-.dev-menu-divider {
-    background: rgba(100, 200, 255, 0.2) !important;
-}
-
-.toggle-switch {
-    background: rgba(255, 255, 255, 0.2) !important;
-}
-
-.toggle-switch.active {
-    background: #00cc66 !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # ─── Sidebar ───────────────────────────────────────────────────
 with st.sidebar:
@@ -387,10 +123,9 @@ components.html("""
 
 /* Menu button */
 .dev-menu-btn {
-    background: rgba(0, 150, 255, 0.2) !important;
-    border: 1px solid rgba(100, 200, 255, 0.4) !important;
-    color: #e0f0ff !important;
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
     width: 40px;
     height: 40px;
     font-size: 20px;
@@ -398,13 +133,13 @@ components.html("""
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: all 0.2s;
 }
 
 .dev-menu-btn:hover {
-    background: rgba(0, 150, 255, 0.4) !important;
-    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+    background: #f5f5f5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transform: scale(1.05);
 }
 
@@ -414,14 +149,13 @@ components.html("""
     position: absolute;
     top: 50px;
     right: 0;
-    background: rgba(15, 20, 40, 0.95) !important;
-    border: 1px solid rgba(100, 200, 255, 0.3) !important;
+    background: white;
+    border: 1px solid #e0e0e0;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 150, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     min-width: 240px;
     padding: 8px 0;
     animation: fadeIn 0.2s;
-    backdrop-filter: blur(10px);
 }
 
 .dev-dropdown.show {
@@ -446,11 +180,11 @@ components.html("""
     width: 100%;
     text-align: left;
     font-size: 14px;
-    color: #e0e8f0 !important;
+    color: #333;
 }
 
 .dev-menu-item:hover {
-    background: rgba(0, 150, 255, 0.2) !important;
+    background: #f5f5f5;
 }
 
 .dev-menu-item .icon {
@@ -465,13 +199,13 @@ components.html("""
 
 .dev-menu-item .sublabel {
     font-size: 11px;
-    color: #888 !important;
+    color: #888;
     margin-top: 2px;
 }
 
 .dev-menu-divider {
     height: 1px;
-    background: rgba(100, 200, 255, 0.2) !important;
+    background: #e0e0e0;
     margin: 8px 0;
 }
 
@@ -480,14 +214,14 @@ components.html("""
     position: relative;
     width: 40px;
     height: 22px;
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: #ccc;
     border-radius: 11px;
     cursor: pointer;
     transition: background 0.3s;
 }
 
 .toggle-switch.active {
-    background: #00cc66 !important;
+    background: #4CAF50;
 }
 
 .toggle-switch::after {
