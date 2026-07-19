@@ -271,6 +271,7 @@ p {
     background: #ffffff !important;
     border: 1px solid rgba(100, 200, 255, 0.3) !important;
     color: #000000 !important;
+    caret-color: #000000 !important;
     font-weight: 500 !important;
 }
 
