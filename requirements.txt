@@ -9,7 +9,8 @@ langchain-experimental>=0.3.0
 
 # Web search & retrieval
 tavily-python>=0.4.0
-duckduckgo-search>=6.0.0
+wikipedia>=1.4.0
+arxiv>=2.0.0
 
 # UI
 streamlit>=1.38.0

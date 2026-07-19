@@ -945,11 +945,9 @@ if run_button and query.strip():
                 st.markdown("#### 🔍 Step 1: Retrieving Sources")
                 sources = orchestrator.retriever.retrieve(query, uploaded_documents=temp_docs)
                 st.markdown(f"**✅ Found {len(sources)} unique sources**")
-                for i, s in enumerate(sources[:8], 1):
+                for i, s in enumerate(sources, 1):
                     st.markdown(f"{i}. **{s.title}**")
                     st.caption(f"   Type: {s.source_type.value} | URL: {s.url[:80]}...")
-                if len(sources) > 8:
-                    st.caption(f"... and {len(sources) - 8} more sources")
 
             # ── Step 2: Analysis ───────────────────────────────
             progress_bar.progress(35, text="🧠 Step 2/4: Analyzing findings...")

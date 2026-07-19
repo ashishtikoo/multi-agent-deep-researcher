@@ -2,14 +2,10 @@
 Contextual Retriever Agent – Pulls data from research papers, news, reports, and APIs.
 """
 
-import json
-import tempfile
 from pathlib import Path
 from typing import Optional
-from langchain_core.messages import SystemMessage, HumanMessage
-from utils.llm import create_llm
-from utils.search import web_search, academic_search, search_all_sources
 from utils.file_reader import read_file
+from utils.search import web_search, academic_search
 from config import settings
 from models import Source, SourceType
 
@@ -20,60 +16,20 @@ class RetrieverAgent:
     from multiple sources: web search, academic databases, news APIs, and reports.
     """
 
-    SYSTEM_PROMPT = """You are an expert research assistant specializing in information retrieval.
-Your job is to identify the best search queries to find relevant, high-quality sources
-for a given research topic.
-
-Generate targeted search queries that would yield the most comprehensive and diverse
-results across different source types (academic papers, news articles, industry reports,
-and general web sources).
-
-Return your response as a JSON object with the following structure:
-{
-    "queries": [
-        {"query": "specific search query", "source_type": "web|academic|news|reports"},
-        ...
-    ]
-}
-
-Be specific and creative with your queries. Consider different angles and perspectives.
-Generate up to 5 queries.
-"""
-
     def __init__(self, llm_model: Optional[str] = None):
-        self.llm = create_llm(llm_model)
-        self.max_queries = 5
+        self.llm_model = llm_model
 
     def generate_search_queries(self, research_query: str, uploaded_docs: Optional[list[dict]] = None) -> list[dict]:
-        """Generate targeted search queries for the research topic."""
-        user_message = f"Research query: {research_query}"
-        if uploaded_docs:
-            user_message += f"\n\nAdditional context from uploaded documents ({len(uploaded_docs)} file(s)): {', '.join(d['name'] for d in uploaded_docs)}"
-
-        messages = [
-            SystemMessage(content=self.SYSTEM_PROMPT),
-            HumanMessage(content=user_message),
+        """Generate targeted search queries for the research topic.
+        Uses direct, well-crafted queries instead of LLM-generated ones for reliability."""
+        queries = [
+            {"query": research_query, "source_type": "web"},
+            {"query": f"{research_query} latest research 2024 2025", "source_type": "academic"},
+            {"query": f"{research_query} analysis and findings", "source_type": "web"},
+            {"query": f"{research_query} news", "source_type": "web"},
+            {"query": f"{research_query} studies and evidence", "source_type": "academic"},
         ]
-        response = self.llm.invoke(messages)
-        content = response.content.strip()
-
-        # Parse JSON response
-        try:
-            # Handle markdown code blocks
-            if "```" in content:
-                content = content.split("```")[1]
-                if content.startswith("json"):
-                    content = content[4:]
-                content = content.strip()
-            result = json.loads(content)
-            return result.get("queries", [])
-        except json.JSONDecodeError:
-            # Fallback: generate default queries
-            return [
-                {"query": research_query, "source_type": "web"},
-                {"query": f"{research_query} latest research", "source_type": "academic"},
-                {"query": f"{research_query} news", "source_type": "web"},
-            ]
+        return queries
 
     def retrieve(self, research_query: str, max_hops: int = 3, uploaded_documents: Optional[list[dict]] = None) -> list[Source]:
         """
@@ -122,7 +78,7 @@ Generate up to 5 queries.
                     all_sources.append(source)
 
         if max_hops > 1 and len(all_sources) > 0:
-            key_topics = self._extract_key_topics(all_sources[:5])
+            key_topics = self._extract_key_topics(research_query)
             for topic in key_topics[:2]:
                 followup = web_search(topic, max_results=3)
                 for source in followup:
@@ -132,24 +88,16 @@ Generate up to 5 queries.
 
         return all_sources[:settings.max_sources_per_query]
 
-    def _extract_key_topics(self, sources: list[Source]) -> list[str]:
-        """Extract key topics from retrieved sources for follow-up queries."""
-        sources_text = "\n".join(f"- {s.title}: {s.snippet[:200]}" for s in sources)
-
-        user_message = f"Sources:\n{sources_text}"
-
-        messages = [
-            SystemMessage(content="Extract up to 3 key research topics from these sources. Return as a JSON array of strings."),
-            HumanMessage(content=user_message),
-        ]
-        response = self.llm.invoke(messages)
-        content = response.content.strip()
-        try:
-            if "```" in content:
-                content = content.split("```")[1].strip()
-            return json.loads(content)
-        except json.JSONDecodeError:
-            return [s.title for s in sources[:3]]
+    def _extract_key_topics(self, research_query: str) -> list[str]:
+        """Extract key topics from the research query for follow-up searches."""
+        # Extract meaningful keywords from the query
+        keywords = [word.strip() for word in research_query.lower().split() if len(word) > 3]
+        # Build follow-up queries from key terms
+        topics = []
+        for kw in keywords[:3]:
+            topics.append(f"{kw} research evidence")
+            topics.append(f"{kw} studies")
+        return topics[:4]
 
     def retrieve_and_summarize(self, research_query: str) -> dict:
         """Retrieve sources and provide a brief summary of what was found."""
