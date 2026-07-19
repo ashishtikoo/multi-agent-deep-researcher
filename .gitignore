@@ -16,8 +16,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Streamlit
-.streamlit/
+# Streamlit (keep config.toml for deployment, but ignore .env)
+.streamlit/config.toml
 
 # Reports
 *.md
