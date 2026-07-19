@@ -529,6 +529,8 @@ if "uploaded_docs" not in st.session_state:
     st.session_state["uploaded_docs"] = []
 if "research_done" not in st.session_state:
     st.session_state["research_done"] = False
+if "last_report" not in st.session_state:
+    st.session_state["last_report"] = None
 
 # ─── Handle Developer Options Actions ──────────────────────────
 def handle_dev_actions():
@@ -558,6 +560,7 @@ def handle_dev_actions():
         st.cache_data.clear()
         st.cache_resource.clear()
         st.session_state["research_done"] = False
+        st.session_state["last_report"] = None
         st.query_params.clear()
         st.rerun()
 
@@ -1006,10 +1009,12 @@ if run_button and query.strip():
             report = orchestrator.reporter.compile(research_data)
             progress_bar.progress(100, text="✅ Research complete!")
 
+            # Store report in session state for persistence across reruns
+            st.session_state["last_report"] = report
+            st.session_state["research_done"] = True
+
             # ── Display Report ─────────────────────────────────
             display_report(report)
-
-            st.session_state["research_done"] = True
 
         except Exception as e:
             error_msg = str(e)
@@ -1037,3 +1042,7 @@ if run_button and query.strip():
 
 elif run_button and not query.strip():
     st.warning("Please enter a research question or topic.")
+
+# ─── Display saved report (persists across reruns for downloads) ───
+if st.session_state.get("last_report") and not (run_button and query.strip()):
+    display_report(st.session_state["last_report"])
