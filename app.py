@@ -531,6 +531,8 @@ if "research_done" not in st.session_state:
     st.session_state["research_done"] = False
 if "last_report" not in st.session_state:
     st.session_state["last_report"] = None
+if "file_uploader_key" not in st.session_state:
+    st.session_state["file_uploader_key"] = 0
 
 # ─── Handle Developer Options Actions ──────────────────────────
 def handle_dev_actions():
@@ -801,7 +803,7 @@ uploaded_files = st.file_uploader(
     "Choose files",
     type=["pdf", "txt", "md", "csv", "json", "docx", "xlsx"],
     accept_multiple_files=True,
-    key="file_uploader",
+    key=f"file_uploader_{st.session_state['file_uploader_key']}",
 )
 
 # Store uploaded files and display list
@@ -812,6 +814,7 @@ if uploaded_files:
 # Clear uploaded files button
 if uploaded_files and len(uploaded_files) > 0:
     if st.button("🗑️ Clear uploaded files", key="clear_files", type="secondary"):
+        st.session_state["file_uploader_key"] += 1
         st.session_state["uploaded_docs"] = []
         st.rerun()
 
