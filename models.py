@@ -27,6 +27,7 @@ class Source(BaseModel):
     relevance_score: float = 0.0
     published_date: Optional[str] = None
     author: Optional[str] = None
+    content: Optional[str] = None  # Full text content for uploaded documents
 
     def __str__(self):
         return f"[{self.source_type.upper()}] {self.title} ({self.url})"
@@ -117,9 +118,24 @@ class ResearchReport(BaseModel):
             md += "\n"
 
         if self.sources:
-            md += "## References\n\n"
-            for i, source in enumerate(self.sources, 1):
-                md += f"{i}. **{source.title}** — [{source.url}]({source.url})\n"
-            md += "\n"
+            doc_sources = [s for s in self.sources if s.source_type == SourceType.DOCUMENT]
+            other_sources = [s for s in self.sources if s.source_type != SourceType.DOCUMENT]
+
+            if doc_sources:
+                md += "## Uploaded Documents\n\n"
+                for i, source in enumerate(doc_sources, 1):
+                    md += f"### {i}. {source.title}\n\n"
+                    if source.content:
+                        preview = source.content[:3000]
+                        if len(source.content) > 3000:
+                            preview += f"\n\n... (truncated, total {len(source.content)} characters)"
+                        md += f"{preview}\n\n"
+                    md += "---\n\n"
+
+            if other_sources:
+                md += "## External Sources\n\n"
+                for i, source in enumerate(other_sources, 1):
+                    md += f"{i}. **{source.title}** — [{source.url}]({source.url})\n"
+                md += "\n"
 
         return md

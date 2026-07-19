@@ -58,17 +58,20 @@ class ResearchOrchestrator:
         self._log(f"{agent_name} completed in {elapsed:.1f}s", "success")
         return result
 
-    def research(self, query: str) -> ResearchReport:
+    def research(self, query: str, uploaded_documents: Optional[list[dict]] = None) -> ResearchReport:
         """
         Run the full multi-agent research pipeline.
 
         Args:
             query: The research question/topic to investigate.
+            uploaded_documents: Optional list of dicts with 'name' and 'file_path' keys.
 
         Returns:
             A complete ResearchReport with findings, insights, and recommendations.
         """
         self._log(f"Beginning deep research on: {query}", "info")
+        if uploaded_documents:
+            self._log(f"Including {len(uploaded_documents)} uploaded document(s) as context", "info")
         self._log("=" * 60, "info")
 
         # Step 1: Retrieve sources
@@ -77,6 +80,7 @@ class ResearchOrchestrator:
             "Contextual Retriever Agent",
             self.retriever.retrieve,
             query,
+            uploaded_documents=uploaded_documents,
         )
         self._log(f"Retrieved {len(sources)} unique sources", "success")
 

@@ -6,12 +6,13 @@ import streamlit as st
 import os
 import sys
 import base64
+import tempfile
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(__file__))
 
 from agents.orchestrator import ResearchOrchestrator
-from models import ResearchReport
+from models import ResearchReport, SourceType
 
 
 # ─── Load Background Image ─────────────────────────────────────
@@ -524,12 +525,12 @@ st.markdown(
 # Initialize session state
 if "query" not in st.session_state:
     st.session_state["query"] = ""
+if "uploaded_docs" not in st.session_state:
+    st.session_state["uploaded_docs"] = []
 if "research_done" not in st.session_state:
     st.session_state["research_done"] = False
 
 # ─── Handle Developer Options Actions ──────────────────────────
-import os
-
 def handle_dev_actions():
     """Handle developer actions from query parameters."""
     query_params = st.query_params
@@ -788,6 +789,29 @@ query = st.text_area(
     label_visibility="collapsed",
 )
 
+# ─── File Upload Section ─────────────────────────────────────────
+st.markdown("---")
+st.markdown("### 📎 Upload Reference Documents (optional)")
+st.caption("Upload PDFs, Word docs, CSVs, JSON, or text files. These will be used as additional research context.")
+
+uploaded_files = st.file_uploader(
+    "Choose files",
+    type=["pdf", "txt", "md", "csv", "json", "docx", "xlsx"],
+    accept_multiple_files=True,
+    key="file_uploader",
+)
+
+# Store uploaded files and display list
+if uploaded_files:
+    for f in uploaded_files:
+        st.caption(f"📄 {f.name} ({f.size / 1024:.1f} KB)")
+
+# Clear uploaded files button
+if uploaded_files and len(uploaded_files) > 0:
+    if st.button("🗑️ Clear uploaded files", key="clear_files", type="secondary"):
+        st.session_state["uploaded_docs"] = []
+        st.rerun()
+
 run_button = st.button("🚀 Start Research", type="primary", use_container_width=True)
 
 
@@ -798,7 +822,9 @@ def display_report(report: ResearchReport):
     st.markdown("---")
 
     st.markdown(f"## {report.title}")
-    st.caption(f"Research Query: {report.query} | Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M')}")
+    doc_count = sum(1 for s in report.sources if s.source_type == SourceType.DOCUMENT)
+    doc_info = f" | 📎 {doc_count} document(s) uploaded" if doc_count > 0 else ""
+    st.caption(f"Research Query: {report.query} | Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M')}{doc_info}")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📋 Summary",
@@ -849,8 +875,24 @@ def display_report(report: ResearchReport):
 
     with tab5:
         st.markdown("### References")
-        for i, s in enumerate(report.sources, 1):
-            st.markdown(f"{i}. **{s.title}** — [{s.source_type.value}]({s.url})")
+        doc_sources = [s for s in report.sources if s.source_type == SourceType.DOCUMENT]
+        other_sources = [s for s in report.sources if s.source_type != SourceType.DOCUMENT]
+
+        if doc_sources:
+            st.markdown("#### 📎 Uploaded Documents")
+            for i, s in enumerate(doc_sources, 1):
+                with st.expander(f"{i}. {s.title}", expanded=False):
+                    st.markdown(f"**Type:** {s.source_type.value}")
+                    if s.content:
+                        preview = s.content[:2000]
+                        if len(s.content) > 2000:
+                            preview += f"\n\n... (truncated, total {len(s.content)} chars)"
+                        st.markdown(preview)
+
+        if other_sources:
+            st.markdown("#### 🌐 External Sources")
+            for i, s in enumerate(other_sources, 1):
+                st.markdown(f"{i}. **{s.title}** — [{s.source_type.value}]({s.url})")
 
     # Download buttons
     st.markdown("---")
@@ -879,13 +921,23 @@ if run_button and query.strip():
         try:
             orchestrator = ResearchOrchestrator(llm_model=llm_model, verbose=False)
 
+            # Save uploaded files to temporary directory
+            temp_docs = []
+            if uploaded_files:
+                temp_dir = tempfile.mkdtemp(prefix="research_docs_")
+                for f in uploaded_files:
+                    file_path = os.path.join(temp_dir, f.name)
+                    with open(file_path, "wb") as tmp_f:
+                        tmp_f.write(f.read())
+                    temp_docs.append({"name": f.name, "file_path": file_path})
+
             # ── Step 1: Retrieval ──────────────────────────────
             progress_bar = st.progress(0, text="🔍 Step 1/4: Gathering information from multiple sources...")
             sources_container = st.container()
 
             with sources_container:
                 st.markdown("#### 🔍 Step 1: Retrieving Sources")
-                sources = orchestrator.retriever.retrieve(query)
+                sources = orchestrator.retriever.retrieve(query, uploaded_documents=temp_docs)
                 st.markdown(f"**✅ Found {len(sources)} unique sources**")
                 for i, s in enumerate(sources[:8], 1):
                     st.markdown(f"{i}. **{s.title}**")

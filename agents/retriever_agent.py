@@ -3,10 +3,13 @@ Contextual Retriever Agent – Pulls data from research papers, news, reports, a
 """
 
 import json
+import tempfile
+from pathlib import Path
 from typing import Optional
 from langchain_core.messages import SystemMessage, HumanMessage
 from utils.llm import create_llm
 from utils.search import web_search, academic_search, search_all_sources
+from utils.file_reader import read_file
 from config import settings
 from models import Source, SourceType
 
@@ -41,9 +44,11 @@ Generate up to 5 queries.
         self.llm = create_llm(llm_model)
         self.max_queries = 5
 
-    def generate_search_queries(self, research_query: str) -> list[dict]:
+    def generate_search_queries(self, research_query: str, uploaded_docs: Optional[list[dict]] = None) -> list[dict]:
         """Generate targeted search queries for the research topic."""
         user_message = f"Research query: {research_query}"
+        if uploaded_docs:
+            user_message += f"\n\nAdditional context from uploaded documents ({len(uploaded_docs)} file(s)): {', '.join(d['name'] for d in uploaded_docs)}"
 
         messages = [
             SystemMessage(content=self.SYSTEM_PROMPT),
@@ -70,14 +75,37 @@ Generate up to 5 queries.
                 {"query": f"{research_query} news", "source_type": "web"},
             ]
 
-    def retrieve(self, research_query: str, max_hops: int = 3) -> list[Source]:
+    def retrieve(self, research_query: str, max_hops: int = 3, uploaded_documents: Optional[list[dict]] = None) -> list[Source]:
         """
         Perform multi-hop retrieval: generate queries, search, and expand.
+        Includes uploaded document content as additional sources.
+
+        Args:
+            research_query: The research question/topic.
+            max_hops: Number of retrieval hops.
+            uploaded_documents: List of dicts with 'name' and 'file_path' keys.
         """
         all_sources: list[Source] = []
         seen_urls = set()
 
-        queries = self.generate_search_queries(research_query)
+        # Add uploaded documents as sources first
+        if uploaded_documents:
+            for doc in uploaded_documents:
+                doc_name = doc.get("name", "Unknown")
+                file_path = doc.get("file_path", "")
+                if file_path and Path(file_path).exists():
+                    content = read_file(file_path)
+                    source = Source(
+                        title=f"📄 Uploaded Document: {doc_name}",
+                        url=f"file://{doc_name}",
+                        source_type=SourceType.DOCUMENT,
+                        snippet=content[:500] + "..." if len(content) > 500 else content,
+                        content=content,
+                    )
+                    all_sources.append(source)
+                    seen_urls.add(f"file://{doc_name}")
+
+        queries = self.generate_search_queries(research_query, uploaded_documents)
 
         for query_info in queries:
             query = query_info["query"]
